@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">KampüsTakasNoktam</string>
+    <string name="language_english">English</string>
+    <string name="language_turkish">Turkish</string>
+
+    <string name="action_search">Search</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_get_started">Get started</string>
+    <string name="action_login">Login</string>
+    <string name="action_register">Register</string>
+    <string name="action_forgot_password">Forgot password</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_favorite">Favorite</string>
+    <string name="nav_add_item">Add Item</string>
+    <string name="nav_my_items">My Items</string>
+    <string name="nav_profile">Profile</string>
+
+    <string name="hint_search_items">Search items, books, electronics...</string>
+
+    <string name="onboarding_title_1">Buy safely on campus</string>
+    <string name="onboarding_desc_1">Discover second-hand products from students around you.</string>
+    <string name="onboarding_title_2">Trade easily</string>
+    <string name="onboarding_desc_2">Exchange items quickly with trusted student profiles.</string>
+    <string name="onboarding_title_3">Sell in minutes</string>
+    <string name="onboarding_desc_3">Create a listing, upload photos, and reach campus buyers fast.</string>
 </resources>

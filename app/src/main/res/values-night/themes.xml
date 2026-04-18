@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.KampüsTakasNoktam" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/app_primary</item>
+        <item name="colorOnPrimary">@color/app_on_primary</item>
+        <item name="colorSurface">@color/app_surface</item>
+        <item name="colorOnSurface">@color/app_on_surface</item>
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/app_background</item>
+    </style>
+
+    <style name="Theme.KampüsTakasNoktam.Light" parent="Theme.Material3.Light.NoActionBar" />
+    <style name="Theme.KampüsTakasNoktam.Dark" parent="Theme.KampüsTakasNoktam" />
+</resources>
