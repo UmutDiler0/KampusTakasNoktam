@@ -10,6 +10,16 @@
     <string name="action_login">Login</string>
     <string name="action_register">Register</string>
     <string name="action_forgot_password">Forgot password</string>
+    <string name="auth_login_title">Welcome back</string>
+    <string name="auth_register_title">Create your account</string>
+    <string name="auth_forgot_title">Reset password</string>
+    <string name="auth_forgot_desc">Enter your email and we will send a reset link.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_full_name">Full name</string>
+    <string name="auth_go_register">Don\'t have an account? Register</string>
+    <string name="auth_back_login">Back to login</string>
+    <string name="auth_send_reset_link">Send reset link</string>
 
     <string name="nav_home">Home</string>
     <string name="nav_favorite">Favorite</string>

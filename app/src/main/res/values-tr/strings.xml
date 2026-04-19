@@ -10,6 +10,16 @@
     <string name="action_login">Giriş yap</string>
     <string name="action_register">Kayıt ol</string>
     <string name="action_forgot_password">Şifremi unuttum</string>
+    <string name="auth_login_title">Tekrar hoş geldin</string>
+    <string name="auth_register_title">Hesabını oluştur</string>
+    <string name="auth_forgot_title">Şifre sıfırla</string>
+    <string name="auth_forgot_desc">E-posta adresini gir, sana sıfırlama bağlantısı gönderelim.</string>
+    <string name="auth_email">E-posta</string>
+    <string name="auth_password">Şifre</string>
+    <string name="auth_full_name">Ad Soyad</string>
+    <string name="auth_go_register">Hesabın yok mu? Kayıt ol</string>
+    <string name="auth_back_login">Girişe dön</string>
+    <string name="auth_send_reset_link">Sıfırlama bağlantısı gönder</string>
 
     <string name="nav_home">Ana Sayfa</string>
     <string name="nav_favorite">Favoriler</string>
