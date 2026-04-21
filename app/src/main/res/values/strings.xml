@@ -9,6 +9,8 @@
     <string name="action_get_started">Get started</string>
     <string name="action_login">Login</string>
     <string name="action_register">Register</string>
+    <string name="action_chat">Open chat</string>
+    <string name="action_basket">Open basket</string>
     <string name="action_forgot_password">Forgot password</string>
     <string name="auth_login_title">Welcome back</string>
     <string name="auth_register_title">Create your account</string>
@@ -22,9 +24,12 @@
     <string name="auth_send_reset_link">Send reset link</string>
 
     <string name="nav_home">Home</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_basket">Basket</string>
     <string name="nav_favorite">Favorite</string>
     <string name="nav_add_item">Add Item</string>
     <string name="nav_my_items">My Items</string>
+    <string name="nav_my_ads">My Ads</string>
     <string name="nav_profile">Profile</string>
 
     <string name="hint_search_items">Search items, books, electronics...</string>

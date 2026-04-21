@@ -12,32 +12,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Blue80,
+    secondary = Mint80,
+    tertiary = Coral70,
+    background = Navy20,
+    surface = Navy30,
+    onPrimary = Navy20,
+    onSecondary = Navy20,
+    onTertiary = Navy20,
+    onBackground = SoftWhite,
+    onSurface = SoftWhite
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Blue40,
+    secondary = Mint40,
+    tertiary = Coral70,
+    background = Sky95,
+    surface = SoftWhite,
+    onPrimary = SoftWhite,
+    onSecondary = SoftWhite,
+    onTertiary = Ink10,
+    onBackground = Ink10,
+    onSurface = Ink10
 )
 
 @Composable
 fun KampüsTakasNoktamTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

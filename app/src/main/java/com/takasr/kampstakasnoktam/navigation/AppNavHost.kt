@@ -12,6 +12,8 @@ import com.takasr.kampstakasnoktam.onboarding.OnboardingRoute
 import com.takasr.kampstakasnoktam.splash.SplashNavigationTarget
 import com.takasr.kampstakasnoktam.splash.SplashScreen
 import com.takasr.kampstakasnoktam.splash.SplashViewModel
+import com.takasr.kampstakasnoktam.ui.BasketScreen
+import com.takasr.kampstakasnoktam.ui.ChatScreen
 import com.takasr.kampstakasnoktam.ui.HomeScreen
 import kotlinx.coroutines.flow.collectLatest
 
@@ -66,7 +68,18 @@ fun AppNavHost(
         }
 
         composable(route = AppDestination.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onChatClick = { navController.navigate(AppDestination.Chat.route) },
+                onBasketClick = { navController.navigate(AppDestination.Basket.route) }
+            )
+        }
+
+        composable(route = AppDestination.Chat.route) {
+            ChatScreen()
+        }
+
+        composable(route = AppDestination.Basket.route) {
+            BasketScreen()
         }
     }
 }

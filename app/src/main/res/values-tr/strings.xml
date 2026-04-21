@@ -9,6 +9,8 @@
     <string name="action_get_started">Başla</string>
     <string name="action_login">Giriş yap</string>
     <string name="action_register">Kayıt ol</string>
+    <string name="action_chat">Sohbeti aç</string>
+    <string name="action_basket">Sepeti aç</string>
     <string name="action_forgot_password">Şifremi unuttum</string>
     <string name="auth_login_title">Tekrar hoş geldin</string>
     <string name="auth_register_title">Hesabını oluştur</string>
@@ -22,9 +24,12 @@
     <string name="auth_send_reset_link">Sıfırlama bağlantısı gönder</string>
 
     <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_chat">Sohbet</string>
+    <string name="nav_basket">Sepet</string>
     <string name="nav_favorite">Favoriler</string>
     <string name="nav_add_item">Ürün Ekle</string>
     <string name="nav_my_items">Ürünlerim</string>
+    <string name="nav_my_ads">İlanlarım</string>
     <string name="nav_profile">Profil</string>
 
     <string name="hint_search_items">Ürün, kitap, elektronik ara...</string>
