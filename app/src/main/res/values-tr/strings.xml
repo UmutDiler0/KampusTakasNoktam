@@ -11,6 +11,10 @@
     <string name="action_register">Kayıt ol</string>
     <string name="action_chat">Sohbeti aç</string>
     <string name="action_basket">Sepeti aç</string>
+    <string name="action_filter">Filtrele</string>
+    <string name="action_add_basket">Sepete ekle</string>
+    <string name="action_add_favorite">Favorilere ekle</string>
+    <string name="action_remove_favorite">Favorilerden çıkar</string>
     <string name="action_forgot_password">Şifremi unuttum</string>
     <string name="auth_login_title">Tekrar hoş geldin</string>
     <string name="auth_register_title">Hesabını oluştur</string>
@@ -33,6 +37,9 @@
     <string name="nav_profile">Profil</string>
 
     <string name="hint_search_items">Ürün, kitap, elektronik ara...</string>
+    <string name="home_empty_ads">Bu aramada ilan bulunamadı.</string>
+    <string name="item_detail_title">İlan detayı</string>
+    <string name="item_detail_id">Seçilen ilan id: %1$d</string>
 
     <string name="onboarding_title_1">Kampüste güvenli alışveriş</string>
     <string name="onboarding_desc_1">Yakınındaki öğrencilerin ikinci el ürünlerini keşfet.</string>

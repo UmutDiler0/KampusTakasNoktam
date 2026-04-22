@@ -11,6 +11,10 @@
     <string name="action_register">Register</string>
     <string name="action_chat">Open chat</string>
     <string name="action_basket">Open basket</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_add_basket">Add to basket</string>
+    <string name="action_add_favorite">Add to favorites</string>
+    <string name="action_remove_favorite">Remove from favorites</string>
     <string name="action_forgot_password">Forgot password</string>
     <string name="auth_login_title">Welcome back</string>
     <string name="auth_register_title">Create your account</string>
@@ -33,6 +37,9 @@
     <string name="nav_profile">Profile</string>
 
     <string name="hint_search_items">Search items, books, electronics...</string>
+    <string name="home_empty_ads">No ads found for this search.</string>
+    <string name="item_detail_title">Item detail</string>
+    <string name="item_detail_id">Selected item id: %1$d</string>
 
     <string name="onboarding_title_1">Buy safely on campus</string>
     <string name="onboarding_desc_1">Discover second-hand products from students around you.</string>
