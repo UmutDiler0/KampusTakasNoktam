@@ -35,9 +35,22 @@
     <string name="nav_my_items">My Items</string>
     <string name="nav_my_ads">My Ads</string>
     <string name="nav_profile">Profile</string>
+    <string name="profile_full_name">Ayse Kaya</string>
+    <string name="profile_email">ayse.kaya@kampusmail.com</string>
+    <string name="profile_section_account">Account</string>
+    <string name="profile_section_preferences">Preferences</string>
+    <string name="profile_section_support">Support</string>
+    <string name="menu_account_info">Account Information</string>
+    <string name="menu_theme">Theme</string>
+    <string name="menu_notifications">Notifications</string>
+    <string name="menu_languages">Languages</string>
+    <string name="menu_privacy">Privacy and Security</string>
+    <string name="menu_help">Help and Support</string>
+    <string name="menu_sign_out">Sign out</string>
 
     <string name="hint_search_items">Search items, books, electronics...</string>
     <string name="home_empty_ads">No ads found for this search.</string>
+    <string name="home_empty_favorites">No favorite ads yet.</string>
     <string name="item_detail_title">Item detail</string>
     <string name="item_detail_id">Selected item id: %1$d</string>
 

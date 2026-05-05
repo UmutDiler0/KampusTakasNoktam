@@ -35,9 +35,22 @@
     <string name="nav_my_items">Ürünlerim</string>
     <string name="nav_my_ads">İlanlarım</string>
     <string name="nav_profile">Profil</string>
+    <string name="profile_full_name">Ayşe Kaya</string>
+    <string name="profile_email">ayse.kaya@kampusmail.com</string>
+    <string name="profile_section_account">Hesap</string>
+    <string name="profile_section_preferences">Tercihler</string>
+    <string name="profile_section_support">Destek</string>
+    <string name="menu_account_info">Hesap Bilgileri</string>
+    <string name="menu_theme">Tema</string>
+    <string name="menu_notifications">Bildirimler</string>
+    <string name="menu_languages">Diller</string>
+    <string name="menu_privacy">Gizlilik ve Güvenlik</string>
+    <string name="menu_help">Yardım ve Destek</string>
+    <string name="menu_sign_out">Çıkış yap</string>
 
     <string name="hint_search_items">Ürün, kitap, elektronik ara...</string>
     <string name="home_empty_ads">Bu aramada ilan bulunamadı.</string>
+    <string name="home_empty_favorites">Henüz favori ilan yok.</string>
     <string name="item_detail_title">İlan detayı</string>
     <string name="item_detail_id">Seçilen ilan id: %1$d</string>
 

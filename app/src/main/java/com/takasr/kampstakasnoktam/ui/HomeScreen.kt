@@ -3,6 +3,7 @@ package com.takasr.kampstakasnoktam.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -19,13 +21,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -46,7 +56,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
@@ -73,12 +85,47 @@ private data class BottomNavItem(
     val icon: ImageVector
 )
 
+private data class ProfileMenuItem(
+    val titleRes: Int,
+    val icon: ImageVector
+)
+
+private data class ProfileMenuSection(
+    val titleRes: Int,
+    val items: List<ProfileMenuItem>
+)
+
 private val bottomNavItems = listOf(
     BottomNavItem(BottomNavTab.Home, R.string.nav_home, Icons.Default.Home),
     BottomNavItem(BottomNavTab.Favorites, R.string.nav_favorite, Icons.Default.Favorite),
     BottomNavItem(BottomNavTab.AddItem, R.string.nav_add_item, Icons.Default.AddCircle),
     BottomNavItem(BottomNavTab.MyAds, R.string.nav_my_ads, Icons.Default.List),
     BottomNavItem(BottomNavTab.Profile, R.string.nav_profile, Icons.Default.Person)
+)
+
+private val profileMenuSections = listOf(
+    ProfileMenuSection(
+        titleRes = R.string.profile_section_account,
+        items = listOf(
+            ProfileMenuItem(R.string.menu_account_info, Icons.Default.Person)
+        )
+    ),
+    ProfileMenuSection(
+        titleRes = R.string.profile_section_preferences,
+        items = listOf(
+            ProfileMenuItem(R.string.menu_theme, Icons.Default.DarkMode),
+            ProfileMenuItem(R.string.menu_notifications, Icons.Default.Notifications),
+            ProfileMenuItem(R.string.menu_languages, Icons.Default.Language)
+        )
+    ),
+    ProfileMenuSection(
+        titleRes = R.string.profile_section_support,
+        items = listOf(
+            ProfileMenuItem(R.string.menu_privacy, Icons.Default.Security),
+            ProfileMenuItem(R.string.menu_help, Icons.Default.HelpOutline),
+            ProfileMenuItem(R.string.menu_sign_out, Icons.Default.Logout)
+        )
+    )
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +135,7 @@ fun HomeScreen(
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
     onItemClick: (Int) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -108,6 +155,9 @@ fun HomeScreen(
             is UiState.Error -> EmptyTabContent(title = state.message)
             is UiState.Success -> HomeContent(
                 uiData = state.data,
+                ads = state.data.filteredAds,
+                emptyStateText = stringResource(id = R.string.home_empty_ads),
+                showSearchAndFilter = true,
                 onQueryChanged = viewModel::onQueryChanged,
                 onItemClick = onItemClick,
                 onFavoriteToggle = viewModel::onFavoriteToggle,
@@ -123,8 +173,12 @@ fun FavoritesScreen(
     onTabSelected: (BottomNavTab) -> Unit,
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
+    onItemClick: (Int) -> Unit,
+    viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     MainTabScaffold(
         selectedTab = BottomNavTab.Favorites,
         titleRes = R.string.nav_favorite,
@@ -133,7 +187,23 @@ fun FavoritesScreen(
         onBasketClick = onBasketClick,
         modifier = modifier
     ) {
-        EmptyTabContent(title = stringResource(id = R.string.nav_favorite))
+        when (val state = uiState) {
+            UiState.Idle,
+            UiState.Loading -> LoadingContent()
+
+            is UiState.Error -> EmptyTabContent(title = state.message)
+            is UiState.Success -> HomeContent(
+                uiData = state.data,
+                ads = state.data.filteredFavoriteAds,
+                emptyStateText = stringResource(id = R.string.home_empty_favorites),
+                showSearchAndFilter = false,
+                onQueryChanged = viewModel::onQueryChanged,
+                onItemClick = onItemClick,
+                onFavoriteToggle = viewModel::onFavoriteToggle,
+                onFilterClick = { },
+                onAddToBasketClick = { }
+            )
+        }
     }
 }
 
@@ -188,9 +258,10 @@ fun ProfileScreen(
         onTabSelected = onTabSelected,
         onChatClick = onChatClick,
         onBasketClick = onBasketClick,
+        showTopBar = false,
         modifier = modifier
     ) {
-        EmptyTabContent(title = stringResource(id = R.string.nav_profile))
+        ProfileContent()
     }
 }
 
@@ -202,6 +273,7 @@ private fun MainTabScaffold(
     onTabSelected: (BottomNavTab) -> Unit,
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
+    showTopBar: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -209,28 +281,30 @@ private fun MainTabScaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = titleRes)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground,
-                    actionIconContentColor = MaterialTheme.colorScheme.primary
-                ),
-                actions = {
-                    IconButton(onClick = onChatClick) {
-                        Icon(
-                            imageVector = Icons.Default.Chat,
-                            contentDescription = stringResource(id = R.string.action_chat)
-                        )
+            if (showTopBar) {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = stringResource(id = titleRes)) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        actionIconContentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    actions = {
+                        IconButton(onClick = onChatClick) {
+                            Icon(
+                                imageVector = Icons.Default.Chat,
+                                contentDescription = stringResource(id = R.string.action_chat)
+                            )
+                        }
+                        IconButton(onClick = onBasketClick) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingBasket,
+                                contentDescription = stringResource(id = R.string.action_basket)
+                            )
+                        }
                     }
-                    IconButton(onClick = onBasketClick) {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingBasket,
-                            contentDescription = stringResource(id = R.string.action_basket)
-                        )
-                    }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
             NavigationBar {
@@ -261,8 +335,119 @@ private fun MainTabScaffold(
 }
 
 @Composable
+private fun ProfileContent(modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    contentDescription = stringResource(id = R.string.nav_profile),
+                    modifier = Modifier
+                        .size(108.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+
+                Text(
+                    text = stringResource(id = R.string.profile_full_name),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = stringResource(id = R.string.profile_email),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                )
+            }
+        }
+
+        items(profileMenuSections.size) { sectionIndex ->
+            val section = profileMenuSections[sectionIndex]
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = stringResource(id = section.titleRes),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                    ) {
+                        section.items.forEach { menuItem ->
+                            ProfileMenuRow(
+                                icon = menuItem.icon,
+                                title = stringResource(id = menuItem.titleRes),
+                                onClick = { }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileMenuRow(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+    }
+}
+
+@Composable
 private fun HomeContent(
     uiData: HomeUiData,
+    ads: List<HomeAdItem>,
+    emptyStateText: String,
+    showSearchAndFilter: Boolean,
     onQueryChanged: (String) -> Unit,
     onItemClick: (Int) -> Unit,
     onFavoriteToggle: (Int) -> Unit,
@@ -275,38 +460,40 @@ private fun HomeContent(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = uiData.searchQuery,
-                onValueChange = onQueryChanged,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text(text = stringResource(id = R.string.hint_search_items)) },
-                shape = RoundedCornerShape(18.dp),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-            OutlinedIconButton(
-                onClick = onFilterClick,
-                modifier = Modifier.size(48.dp)
+        if (showSearchAndFilter) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Tune,
-                    contentDescription = stringResource(id = R.string.action_filter)
+                OutlinedTextField(
+                    value = uiData.searchQuery,
+                    onValueChange = onQueryChanged,
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(text = stringResource(id = R.string.hint_search_items)) },
+                    shape = RoundedCornerShape(18.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    )
                 )
+                OutlinedIconButton(
+                    onClick = onFilterClick,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = stringResource(id = R.string.action_filter)
+                    )
+                }
             }
         }
 
-        if (uiData.filteredAds.isEmpty()) {
-            EmptyTabContent(title = stringResource(id = R.string.home_empty_ads))
+        if (ads.isEmpty()) {
+            EmptyTabContent(title = emptyStateText)
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -315,7 +502,7 @@ private fun HomeContent(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(
-                    items = uiData.filteredAds,
+                    items = ads,
                     key = { item -> item.id }
                 ) { item ->
                     HomeAdCard(

@@ -28,6 +28,9 @@ data class HomeUiData(
             }
         }
 
+    val filteredFavoriteAds: List<HomeAdItem>
+        get() = filteredAds.filter { ad -> ad.isFavorite }
+
     companion object {
         val Initial = HomeUiData(
             ads = listOf(
@@ -37,7 +40,8 @@ data class HomeUiData(
                     price = "24.500 TL",
                     sellerName = "Ayse K.",
                     location = "ITU Ayazaga",
-                    imageUrl = "https://picsum.photos/seed/ad-1/600/400"
+                    imageUrl = "https://picsum.photos/seed/ad-1/600/400",
+                    isFavorite = true
                 ),
                 HomeAdItem(
                     id = 2,
@@ -53,7 +57,8 @@ data class HomeUiData(
                     price = "2.100 TL",
                     sellerName = "Elif D.",
                     location = "Bogazici Universitesi",
-                    imageUrl = "https://picsum.photos/seed/ad-3/600/400"
+                    imageUrl = "https://picsum.photos/seed/ad-3/600/400",
+                    isFavorite = true
                 ),
                 HomeAdItem(
                     id = 4,

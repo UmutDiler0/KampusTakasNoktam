@@ -20,6 +20,7 @@ import com.takasr.kampstakasnoktam.ui.BottomNavTab
 import com.takasr.kampstakasnoktam.ui.ChatScreen
 import com.takasr.kampstakasnoktam.ui.FavoritesScreen
 import com.takasr.kampstakasnoktam.ui.HomeScreen
+import com.takasr.kampstakasnoktam.ui.HomeViewModel
 import com.takasr.kampstakasnoktam.ui.ItemDetailScreen
 import com.takasr.kampstakasnoktam.ui.MyAdsScreen
 import com.takasr.kampstakasnoktam.ui.ProfileScreen
@@ -29,6 +30,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun AppNavHost(
     navController: NavHostController = rememberNavController()
 ) {
+    val homeViewModel: HomeViewModel = hiltViewModel()
+
     val navigateToMainTab: (BottomNavTab) -> Unit = { tab ->
         val route = when (tab) {
             BottomNavTab.Home -> AppDestination.Home.route
@@ -97,7 +100,8 @@ fun AppNavHost(
                 onBasketClick = { navController.navigate(AppDestination.Basket.route) },
                 onItemClick = { itemId ->
                     navController.navigate(AppDestination.ItemDetail.createRoute(itemId))
-                }
+                },
+                viewModel = homeViewModel
             )
         }
 
@@ -105,7 +109,11 @@ fun AppNavHost(
             FavoritesScreen(
                 onTabSelected = navigateToMainTab,
                 onChatClick = { navController.navigate(AppDestination.Chat.route) },
-                onBasketClick = { navController.navigate(AppDestination.Basket.route) }
+                onBasketClick = { navController.navigate(AppDestination.Basket.route) },
+                onItemClick = { itemId ->
+                    navController.navigate(AppDestination.ItemDetail.createRoute(itemId))
+                },
+                viewModel = homeViewModel
             )
         }
 
@@ -148,7 +156,11 @@ fun AppNavHost(
             )
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
-            ItemDetailScreen(itemId = itemId)
+            ItemDetailScreen(
+                itemId = itemId,
+                onBackClick = { navController.popBackStack() },
+                onAddToBasket = { /* TODO: Implement add to basket */ }
+            )
         }
     }
 }
