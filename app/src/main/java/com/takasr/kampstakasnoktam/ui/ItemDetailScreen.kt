@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 // Data model for detailed item information
 data class ItemDetailData(
     val id: Int,
+    val sellerId: Int,
     val title: String,
     val price: String,
     val sellerName: String,
@@ -49,12 +51,14 @@ fun ItemDetailScreen(
     itemId: Int,
     onBackClick: () -> Unit = {},
     onAddToBasket: (Int) -> Unit = {},
+    onSellerClick: (sellerId: Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Mock data - in real app this would come from ViewModel
     val itemDetail = remember {
         ItemDetailData(
             id = itemId,
+            sellerId = 1, // TODO: map from real item data
             title = "MacBook Air M1 256GB",
             price = "24.500 TL",
             sellerName = "Ayşe K.",
@@ -108,7 +112,8 @@ fun ItemDetailScreen(
 
             // Item Details Tabs
             ItemDetailsTabs(
-                itemDetail = itemDetail
+                itemDetail = itemDetail,
+                onSellerClick = onSellerClick
             )
         }
     }
@@ -219,6 +224,7 @@ private fun PriceAndBasketSection(
 @Composable
 private fun ItemDetailsTabs(
     itemDetail: ItemDetailData,
+    onSellerClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -244,7 +250,10 @@ private fun ItemDetailsTabs(
 
         when (selectedTabIndex) {
             0 -> ItemDescriptionTab(itemDetail.description)
-            1 -> SellerDescriptionTab(itemDetail)
+            1 -> SellerDescriptionTab(
+                itemDetail = itemDetail,
+                onSellerClick = onSellerClick
+            )
             2 -> ItemInformationTab(itemDetail.itemInformation)
         }
     }
@@ -272,7 +281,10 @@ private fun ItemDescriptionTab(description: String) {
 }
 
 @Composable
-private fun SellerDescriptionTab(itemDetail: ItemDetailData) {
+private fun SellerDescriptionTab(
+    itemDetail: ItemDetailData,
+    onSellerClick: (Int) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -285,37 +297,57 @@ private fun SellerDescriptionTab(itemDetail: ItemDetailData) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 12.dp)
+        // Clickable seller header ─ navigates to SellerScreen
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onSellerClick(itemDetail.sellerId) },
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f)
+            )
         ) {
-            Box(
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = itemDetail.sellerName.first().toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = itemDetail.sellerName,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = itemDetail.location,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = itemDetail.sellerName.first().toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = itemDetail.sellerName,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = itemDetail.location,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Satıcı Profili",
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = itemDetail.sellerDescription,

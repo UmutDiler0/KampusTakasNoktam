@@ -24,6 +24,7 @@ import com.takasr.kampstakasnoktam.ui.HomeViewModel
 import com.takasr.kampstakasnoktam.ui.ItemDetailScreen
 import com.takasr.kampstakasnoktam.ui.MyAdsScreen
 import com.takasr.kampstakasnoktam.ui.ProfileScreen
+import com.takasr.kampstakasnoktam.ui.seller.SellerScreen
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -159,7 +160,26 @@ fun AppNavHost(
             ItemDetailScreen(
                 itemId = itemId,
                 onBackClick = { navController.popBackStack() },
-                onAddToBasket = { /* TODO: Implement add to basket */ }
+                onAddToBasket = { /* TODO: Implement add to basket */ },
+                onSellerClick = { sellerId ->
+                    navController.navigate(AppDestination.SellerProfile.createRoute(sellerId))
+                }
+            )
+        }
+
+        composable(
+            route = AppDestination.SellerProfile.route,
+            arguments = listOf(
+                navArgument("sellerId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val sellerId = backStackEntry.arguments?.getInt("sellerId") ?: return@composable
+            SellerScreen(
+                sellerId = sellerId,
+                onBackClick = { navController.popBackStack() },
+                onAdClick = { adId ->
+                    navController.navigate(AppDestination.ItemDetail.createRoute(adId))
+                }
             )
         }
     }
