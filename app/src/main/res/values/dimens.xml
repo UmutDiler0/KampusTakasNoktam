@@ -55,4 +55,13 @@
     <dimen name="chat_avatar_size">52dp</dimen>
     <dimen name="chat_unread_badge_size">20dp</dimen>
     <dimen name="chat_online_dot_size">14dp</dimen>
+
+    <!-- Chat Detail Screen -->
+    <dimen name="chat_detail_avatar_size">36dp</dimen>
+    <dimen name="chat_bubble_horizontal_padding">14dp</dimen>
+    <dimen name="chat_bubble_vertical_padding">10dp</dimen>
+    <dimen name="chat_bubble_corner_radius">18dp</dimen>
+    <dimen name="chat_bubble_max_width_fraction">0dp</dimen>
+    <dimen name="chat_input_height">56dp</dimen>
+    <dimen name="chat_typing_dot_size">8dp</dimen>
 </resources>

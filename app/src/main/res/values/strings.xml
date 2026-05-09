@@ -20,6 +20,9 @@
     <string name="chat_empty_title">No messages yet</string>
     <string name="chat_empty_desc">Start a conversation by visiting a seller\u2019s profile.</string>
     <string name="chat_online">Online</string>
+    <string name="chat_type_hint">Type a message…</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_typing">typing…</string>
     <string name="auth_login_title">Welcome back</string>
     <string name="auth_register_title">Create your account</string>
     <string name="auth_forgot_title">Reset password</string>

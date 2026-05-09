@@ -17,6 +17,7 @@ import com.takasr.kampstakasnoktam.splash.SplashViewModel
 import com.takasr.kampstakasnoktam.ui.AddItemScreen
 import com.takasr.kampstakasnoktam.ui.BasketScreen
 import com.takasr.kampstakasnoktam.ui.BottomNavTab
+import com.takasr.kampstakasnoktam.ui.ChatDetailScreen
 import com.takasr.kampstakasnoktam.ui.ChatScreen
 import com.takasr.kampstakasnoktam.ui.FavoritesScreen
 import com.takasr.kampstakasnoktam.ui.HomeScreen
@@ -143,7 +144,25 @@ fun AppNavHost(
         }
 
         composable(route = AppDestination.Chat.route) {
-            ChatScreen(onBackClick = { navController.popBackStack() })
+            ChatScreen(
+                onBackClick = { navController.popBackStack() },
+                onConversationClick = { conversationId ->
+                    navController.navigate(AppDestination.ChatDetail.createRoute(conversationId))
+                }
+            )
+        }
+
+        composable(
+            route = AppDestination.ChatDetail.route,
+            arguments = listOf(
+                navArgument("conversationId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val conversationId = backStackEntry.arguments?.getInt("conversationId") ?: return@composable
+            ChatDetailScreen(
+                conversationId = conversationId,
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
         composable(route = AppDestination.Basket.route) {

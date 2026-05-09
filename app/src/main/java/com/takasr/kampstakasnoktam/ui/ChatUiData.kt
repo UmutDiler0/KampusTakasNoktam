@@ -13,6 +13,13 @@ data class ChatConversation(
     val isOnline: Boolean = false
 )
 
+data class ChatMessage(
+    val id: Int,
+    val text: String,
+    val isMine: Boolean,
+    val timestamp: String
+)
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 object ChatMockData {
@@ -69,4 +76,37 @@ object ChatMockData {
     )
 
     val emptyConversations: List<ChatConversation> = emptyList()
+
+    /** Initial message history shown when a thread is opened. */
+    fun initialMessages(conversationId: Int): List<ChatMessage> = when (conversationId) {
+        1 -> listOf(
+            ChatMessage(1, "Merhaba! MacBook satılık mı?", false, "14:28"),
+            ChatMessage(2, "Evet, hâlâ satılık.", true, "14:29"),
+            ChatMessage(3, "Fiyatta indirim yapabilir misiniz?", false, "14:30"),
+            ChatMessage(4, "Küçük bir indirim yapabilirim, makul teklif bekliyorum.", true, "14:31"),
+            ChatMessage(5, "MacBook hâlâ satılık mı?", false, "14:32")
+        )
+        2 -> listOf(
+            ChatMessage(1, "Merhaba, masayı hâlâ satıyor musunuz?", false, "11:50"),
+            ChatMessage(2, "Evet! Ne zaman bakabilirsiniz?", true, "11:52"),
+            ChatMessage(3, "Yarın sabah müsaitim.", false, "11:58"),
+            ChatMessage(4, "Tamam, yarın 10:00'da görüşelim.", false, "12:05")
+        )
+        else -> listOf(
+            ChatMessage(1, "Merhaba, ilanınızı gördüm. İlgileniyorum.", false, "09:00"),
+            ChatMessage(2, "Harika! Detayları konuşabiliriz.", true, "09:05")
+        )
+    }
+
+    /** Pool of auto-replies used for the simulated response. */
+    val autoReplies = listOf(
+        "Anlıyorum, biraz düşüneyim.",
+        "Peki, fiyatı uygun bulursam alırım.",
+        "Teşekkürler, haberdar ederim!",
+        "Tamam, buluşma yeri için anlaşalım.",
+        "Güzel, en kısa sürede cevaplarım.",
+        "Olur, yarın tekrar konuşalım.",
+        "Anlaştık! 👍",
+        "Harika, bekliyorum."
+    )
 }

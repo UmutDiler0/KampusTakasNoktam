@@ -47,6 +47,7 @@ import com.takasr.kampstakasnoktam.R
 @Composable
 fun ChatScreen(
     onBackClick: () -> Unit,
+    onConversationClick: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Using mock data — swap with ViewModel state when ready
@@ -94,7 +95,7 @@ fun ChatScreen(
                 ) { index, conversation ->
                     ConversationRow(
                         conversation = conversation,
-                        onClick = { /* TODO: navigate to thread */ }
+                        onClick = { onConversationClick(conversation.id) }
                     )
                     if (index < conversations.lastIndex) {
                         HorizontalDivider(
