@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -457,13 +458,16 @@ private fun HomeContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.screen_horizontal_padding),
+                vertical = dimensionResource(R.dimen.spacing_md)
+            ),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_lg))
     ) {
         if (showSearchAndFilter) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
@@ -471,7 +475,7 @@ private fun HomeContent(
                     onValueChange = onQueryChanged,
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(text = stringResource(id = R.string.hint_search_items)) },
-                    shape = RoundedCornerShape(18.dp),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.radius_lg)),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -482,7 +486,7 @@ private fun HomeContent(
                 )
                 OutlinedIconButton(
                     onClick = onFilterClick,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.spacing_xl) * 2)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Tune,
@@ -497,8 +501,8 @@ private fun HomeContent(
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md)),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(
@@ -530,7 +534,7 @@ private fun HomeAdCard(
             .fillMaxWidth()
             .aspectRatio(0.78f)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.ad_card_corner_radius)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -538,8 +542,8 @@ private fun HomeAdCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(dimensionResource(R.dimen.ad_card_inner_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm))
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 AsyncImage(
@@ -548,13 +552,13 @@ private fun HomeAdCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(110.dp)
+                        .height(dimensionResource(R.dimen.ad_card_image_height))
                 )
                 IconButton(
                     onClick = onFavoriteClick,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .size(34.dp)
+                        .size(dimensionResource(R.dimen.ad_card_favorite_btn_size))
                 ) {
                     Icon(
                         imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,

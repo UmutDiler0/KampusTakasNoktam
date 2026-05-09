@@ -54,6 +54,22 @@
     <string name="item_detail_title">Item detail</string>
     <string name="item_detail_id">Selected item id: %1$d</string>
 
+    <!-- Seller Profile Screen -->
+    <string name="seller_profile_title">Seller Profile</string>
+    <string name="seller_back">Back</string>
+    <string name="seller_verified">Verified</string>
+    <string name="seller_not_verified">Not Verified</string>
+    <string name="seller_contact_title">Contact Information</string>
+    <string name="seller_label_email">Email</string>
+    <string name="seller_label_phone">Phone</string>
+    <string name="seller_member_since">Member since: %1$s</string>
+    <string name="seller_stat_rating">Rating</string>
+    <string name="seller_stat_sales">Sales</string>
+    <string name="seller_stat_reviews">Reviews</string>
+    <string name="seller_section_ads">Listings</string>
+    <string name="seller_section_reviews">Reviews</string>
+    <string name="seller_no_active_ads">No active listings found</string>
+
     <string name="onboarding_title_1">Buy safely on campus</string>
     <string name="onboarding_desc_1">Discover second-hand products from students around you.</string>
     <string name="onboarding_title_2">Trade easily</string>

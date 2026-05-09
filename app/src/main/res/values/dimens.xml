@@ -23,4 +23,31 @@
     <dimen name="bottom_nav_height">64dp</dimen>
     <dimen name="card_min_height">96dp</dimen>
     <dimen name="image_thumb_size">72dp</dimen>
+
+    <!-- Ad Card -->
+    <dimen name="ad_card_image_height">110dp</dimen>
+    <dimen name="ad_card_inner_padding">10dp</dimen>
+    <dimen name="ad_card_corner_radius">20dp</dimen>
+    <dimen name="ad_card_image_corner_radius">10dp</dimen>
+    <dimen name="ad_card_favorite_btn_size">34dp</dimen>
+
+    <!-- Seller Screen -->
+    <dimen name="seller_avatar_size">96dp</dimen>
+    <dimen name="seller_avatar_badge_size">26dp</dimen>
+    <dimen name="seller_reviewer_avatar_size">40dp</dimen>
+    <dimen name="seller_ad_card_width">160dp</dimen>
+    <dimen name="seller_ad_card_image_height">96dp</dimen>
+    <dimen name="seller_hero_horizontal_padding">20dp</dimen>
+    <dimen name="seller_hero_vertical_padding">28dp</dimen>
+    <dimen name="seller_card_corner_radius">20dp</dimen>
+    <dimen name="seller_card_inner_horizontal_padding">20dp</dimen>
+    <dimen name="seller_card_inner_vertical_padding">16dp</dimen>
+    <dimen name="seller_section_icon_size">16dp</dimen>
+    <dimen name="seller_contact_icon_size">20dp</dimen>
+    <dimen name="seller_stat_icon_size">22dp</dimen>
+    <dimen name="seller_star_icon_size">14dp</dimen>
+    <dimen name="seller_verified_icon_size">14dp</dimen>
+    <dimen name="seller_separator_height">40dp</dimen>
+    <dimen name="seller_review_horizontal_padding">16dp</dimen>
+    <dimen name="seller_review_vertical_padding">14dp</dimen>
 </resources>

@@ -49,10 +49,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.base.UiState
 import kotlin.math.roundToInt
 
@@ -76,12 +78,12 @@ fun SellerScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = "Satıcı Profili") },
+                title = { Text(text = stringResource(R.string.seller_profile_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Geri"
+                            contentDescription = stringResource(R.string.seller_back)
                         )
                     }
                 },
@@ -140,7 +142,7 @@ private fun SellerContent(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md))
     ) {
         // ── Profile Hero Card ────────────────────────────────────────────────
         item {
@@ -149,21 +151,19 @@ private fun SellerContent(
 
         // ── Contact & Verification ───────────────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(12.dp))
             SellerContactSection(seller = data.seller)
         }
 
         // ── Rating summary ───────────────────────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(12.dp))
             SellerRatingSummary(seller = data.seller)
         }
 
         // ── Active Ads ───────────────────────────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xs)))
             SectionTitle(
-                title = "İlanlar",
+                title = stringResource(R.string.seller_section_ads),
                 badge = "${data.ads.size}"
             )
         }
@@ -174,24 +174,18 @@ private fun SellerContent(
 
         // ── Reviews ──────────────────────────────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xs)))
             SectionTitle(
-                title = "Değerlendirmeler",
+                title = stringResource(R.string.seller_section_reviews),
                 badge = "${data.reviews.size}"
             )
         }
 
         items(data.reviews, key = { it.id }) { review ->
             ReviewCard(review = review)
-            if (data.reviews.last() != review) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                )
-            }
         }
 
-        item { Spacer(modifier = Modifier.height(32.dp)) }
+        item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl))) }
     }
 }
 
@@ -213,12 +207,15 @@ private fun SellerProfileHero(
                     )
                 )
             )
-            .padding(horizontal = 20.dp, vertical = 28.dp),
+            .padding(
+                horizontal = dimensionResource(R.dimen.seller_hero_horizontal_padding),
+                vertical = dimensionResource(R.dimen.seller_hero_vertical_padding)
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md))
         ) {
             // Avatar
             Box(contentAlignment = Alignment.BottomEnd) {
@@ -227,14 +224,14 @@ private fun SellerProfileHero(
                         model = seller.profileImageUrl,
                         contentDescription = seller.fullName,
                         modifier = Modifier
-                            .size(96.dp)
+                            .size(dimensionResource(R.dimen.seller_avatar_size))
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
                 } else {
                     Box(
                         modifier = Modifier
-                            .size(96.dp)
+                            .size(dimensionResource(R.dimen.seller_avatar_size))
                             .clip(CircleShape)
                             .background(
                                 Brush.linearGradient(
@@ -259,10 +256,10 @@ private fun SellerProfileHero(
                 if (seller.isEmailVerified) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Doğrulanmış",
+                        contentDescription = stringResource(R.string.seller_verified),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(dimensionResource(R.dimen.seller_avatar_badge_size))
                             .background(
                                 MaterialTheme.colorScheme.background,
                                 CircleShape
@@ -282,13 +279,13 @@ private fun SellerProfileHero(
             // University
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
             ) {
                 Icon(
                     imageVector = Icons.Default.School,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.seller_section_icon_size))
                 )
                 Text(
                     text = seller.university,
@@ -299,7 +296,7 @@ private fun SellerProfileHero(
 
             // Member since
             Text(
-                text = "Üye: ${seller.memberSince}",
+                text = stringResource(R.string.seller_member_since, seller.memberSince),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f)
             )
@@ -317,8 +314,8 @@ private fun SellerContactSection(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = dimensionResource(R.dimen.screen_horizontal_padding)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.seller_card_corner_radius)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -326,11 +323,14 @@ private fun SellerContactSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.seller_card_inner_horizontal_padding),
+                    vertical = dimensionResource(R.dimen.seller_card_inner_vertical_padding)
+                ),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_lg))
         ) {
             Text(
-                text = "İletişim Bilgileri",
+                text = stringResource(R.string.seller_contact_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -343,10 +343,10 @@ private fun SellerContactSection(
                         imageVector = Icons.Default.Email,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.seller_contact_icon_size))
                     )
                 },
-                label = "E-posta",
+                label = stringResource(R.string.seller_label_email),
                 value = seller.email,
                 trailing = {
                     if (seller.isEmailVerified) {
@@ -366,10 +366,10 @@ private fun SellerContactSection(
                         imageVector = Icons.Default.Phone,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(dimensionResource(R.dimen.seller_contact_icon_size))
                     )
                 },
-                label = "Telefon",
+                label = stringResource(R.string.seller_label_phone),
                 value = seller.phone
             )
         }
@@ -387,7 +387,7 @@ private fun ContactRow(
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md))
     ) {
         icon()
         Column(modifier = Modifier.weight(1f)) {
@@ -414,18 +414,21 @@ private fun VerifiedBadge() {
         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.spacing_md),
+                vertical = dimensionResource(R.dimen.spacing_xs)
+            ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
         ) {
             Icon(
                 imageVector = Icons.Default.VerifiedUser,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.seller_verified_icon_size))
             )
             Text(
-                text = "Doğrulandı",
+                text = stringResource(R.string.seller_verified),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
@@ -441,11 +444,14 @@ private fun UnverifiedBadge() {
         color = MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
     ) {
         Text(
-            text = "Doğrulanmadı",
+            text = stringResource(R.string.seller_not_verified),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(R.dimen.spacing_md),
+                vertical = dimensionResource(R.dimen.spacing_xs)
+            )
         )
     }
 }
@@ -460,8 +466,8 @@ private fun SellerRatingSummary(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = dimensionResource(R.dimen.screen_horizontal_padding)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.seller_card_corner_radius)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -469,22 +475,25 @@ private fun SellerRatingSummary(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(
+                    horizontal = dimensionResource(R.dimen.seller_card_inner_horizontal_padding),
+                    vertical = dimensionResource(R.dimen.seller_card_inner_vertical_padding)
+                ),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            StatItem(label = "Puan", value = "%.1f".format(seller.rating)) {
+            StatItem(label = stringResource(R.string.seller_stat_rating), value = "%.1f".format(seller.rating)) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.seller_stat_icon_size))
                 )
             }
             VerticalSeparator()
-            StatItem(label = "Satış", value = "${seller.totalSales}")
+            StatItem(label = stringResource(R.string.seller_stat_sales), value = "${seller.totalSales}")
             VerticalSeparator()
-            StatItem(label = "Yorum", value = "${seller.totalReviews}")
+            StatItem(label = stringResource(R.string.seller_stat_reviews), value = "${seller.totalReviews}")
         }
     }
 }
@@ -499,12 +508,12 @@ private fun StatItem(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
     ) {
         if (icon != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
             ) {
                 icon()
                 Text(
@@ -534,8 +543,8 @@ private fun StatItem(
 private fun VerticalSeparator() {
     Box(
         modifier = Modifier
-            .width(1.dp)
-            .height(40.dp)
+            .width(dimensionResource(R.dimen.spacing_xs) / 4) // 1dp equivalent via smallest token fraction
+            .height(dimensionResource(R.dimen.seller_separator_height))
             .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     )
 }
@@ -552,11 +561,11 @@ private fun SellerAdsRow(
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(vertical = dimensionResource(R.dimen.spacing_lg)),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Aktif ilan bulunamadı",
+                text = stringResource(R.string.seller_no_active_ads),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
@@ -564,8 +573,8 @@ private fun SellerAdsRow(
     } else {
         LazyRow(
             modifier = modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.screen_horizontal_padding)),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md))
         ) {
             items(ads, key = { it.id }) { ad ->
                 SellerAdCard(ad = ad, onClick = { onAdClick(ad.id) })
@@ -582,10 +591,10 @@ private fun SellerAdCard(
 ) {
     Card(
         modifier = modifier
-            .width(160.dp)
+            .width(dimensionResource(R.dimen.seller_ad_card_width))
             .aspectRatio(0.75f),
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.radius_lg)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -593,8 +602,8 @@ private fun SellerAdCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(dimensionResource(R.dimen.ad_card_inner_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm))
         ) {
             AsyncImage(
                 model = ad.imageUrl,
@@ -602,8 +611,8 @@ private fun SellerAdCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(96.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .height(dimensionResource(R.dimen.seller_ad_card_image_height))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.ad_card_image_corner_radius)))
             )
             Text(
                 text = ad.title,
@@ -629,68 +638,84 @@ private fun ReviewCard(
     review: SellerReview,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.screen_horizontal_padding),
+                vertical = dimensionResource(R.dimen.spacing_xs)
+            ),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.seller_card_corner_radius)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = dimensionResource(R.dimen.seller_review_horizontal_padding),
+                    vertical = dimensionResource(R.dimen.seller_review_vertical_padding)
+                ),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm))
         ) {
-            // Reviewer avatar
-            if (review.reviewerImageUrl != null) {
-                AsyncImage(
-                    model = review.reviewerImageUrl,
-                    contentDescription = review.reviewerName,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md))
+            ) {
+                // Reviewer avatar
+                if (review.reviewerImageUrl != null) {
+                    AsyncImage(
+                        model = review.reviewerImageUrl,
+                        contentDescription = review.reviewerName,
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.seller_reviewer_avatar_size))
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.seller_reviewer_avatar_size))
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = review.reviewerInitials,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = review.reviewerInitials,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        text = review.reviewerName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = review.date,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
+
+                // Star rating
+                StarRating(rating = review.rating)
             }
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = review.reviewerName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = review.date,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-
-            // Star rating
-            StarRating(rating = review.rating)
+            Text(
+                text = review.comment,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+                lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.3f
+            )
         }
-
-        Text(
-            text = review.comment,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.3f
-        )
     }
 }
 
@@ -700,7 +725,7 @@ private fun StarRating(
     modifier: Modifier = Modifier
 ) {
     val fullStars = rating.roundToInt().coerceIn(0, 5)
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs) / 2)) {
         repeat(5) { index ->
             Icon(
                 imageVector = Icons.Default.Star,
@@ -710,7 +735,7 @@ private fun StarRating(
                 } else {
                     MaterialTheme.colorScheme.outlineVariant
                 },
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.seller_star_icon_size))
             )
         }
     }
@@ -727,9 +752,12 @@ private fun SectionTitle(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(
+                horizontal = dimensionResource(R.dimen.screen_horizontal_padding),
+                vertical = dimensionResource(R.dimen.spacing_xs)
+            ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_sm))
     ) {
         Text(
             text = title,
@@ -747,7 +775,10 @@ private fun SectionTitle(
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(R.dimen.spacing_sm),
+                    vertical = dimensionResource(R.dimen.spacing_xs) / 2
+                )
             )
         }
     }

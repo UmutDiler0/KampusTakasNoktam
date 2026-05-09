@@ -54,6 +54,22 @@
     <string name="item_detail_title">İlan detayı</string>
     <string name="item_detail_id">Seçilen ilan id: %1$d</string>
 
+    <!-- Seller Profile Screen -->
+    <string name="seller_profile_title">Satıcı Profili</string>
+    <string name="seller_back">Geri</string>
+    <string name="seller_verified">Doğrulandı</string>
+    <string name="seller_not_verified">Doğrulanmadı</string>
+    <string name="seller_contact_title">İletişim Bilgileri</string>
+    <string name="seller_label_email">E-posta</string>
+    <string name="seller_label_phone">Telefon</string>
+    <string name="seller_member_since">Üye: %1$s</string>
+    <string name="seller_stat_rating">Puan</string>
+    <string name="seller_stat_sales">Satış</string>
+    <string name="seller_stat_reviews">Yorum</string>
+    <string name="seller_section_ads">İlanlar</string>
+    <string name="seller_section_reviews">Değerlendirmeler</string>
+    <string name="seller_no_active_ads">Aktif ilan bulunamadı</string>
+
     <string name="onboarding_title_1">Kampüste güvenli alışveriş</string>
     <string name="onboarding_desc_1">Yakınındaki öğrencilerin ikinci el ürünlerini keşfet.</string>
     <string name="onboarding_title_2">Kolayca takas yap</string>
