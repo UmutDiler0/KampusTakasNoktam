@@ -143,7 +143,7 @@ fun AppNavHost(
         }
 
         composable(route = AppDestination.Chat.route) {
-            ChatScreen()
+            ChatScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(route = AppDestination.Basket.route) {

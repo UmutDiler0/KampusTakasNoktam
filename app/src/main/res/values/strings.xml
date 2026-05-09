@@ -16,6 +16,10 @@
     <string name="action_add_favorite">Add to favorites</string>
     <string name="action_remove_favorite">Remove from favorites</string>
     <string name="action_forgot_password">Forgot password</string>
+    <string name="chat_title">Messages</string>
+    <string name="chat_empty_title">No messages yet</string>
+    <string name="chat_empty_desc">Start a conversation by visiting a seller\u2019s profile.</string>
+    <string name="chat_online">Online</string>
     <string name="auth_login_title">Welcome back</string>
     <string name="auth_register_title">Create your account</string>
     <string name="auth_forgot_title">Reset password</string>

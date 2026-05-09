@@ -16,6 +16,10 @@
     <string name="action_add_favorite">Favorilere ekle</string>
     <string name="action_remove_favorite">Favorilerden çıkar</string>
     <string name="action_forgot_password">Şifremi unuttum</string>
+    <string name="chat_title">Mesajlar</string>
+    <string name="chat_empty_title">Henüz mesaj yok</string>
+    <string name="chat_empty_desc">Bir satıcının profilini ziyaret ederek konuşmaya başla.</string>
+    <string name="chat_online">Çevrimiçi</string>
     <string name="auth_login_title">Tekrar hoş geldin</string>
     <string name="auth_register_title">Hesabını oluştur</string>
     <string name="auth_forgot_title">Şifre sıfırla</string>
