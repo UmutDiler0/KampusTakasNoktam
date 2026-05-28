@@ -42,6 +42,11 @@
     <string name="nav_my_items">Ürünlerim</string>
     <string name="nav_my_ads">İlanlarım</string>
     <string name="nav_profile">Profil</string>
+    <string name="basket_empty">Sepetiniz boş</string>
+    <string name="basket_suggestions">Sizin için önerilenler</string>
+    <string name="basket_checkout">Ödeme Yap</string>
+    <string name="basket_total">Toplam</string>
+    <string name="action_remove">Kaldır</string>
     <string name="profile_full_name">Ayşe Kaya</string>
     <string name="profile_email">ayse.kaya@kampusmail.com</string>
     <string name="profile_section_account">Hesap</string>

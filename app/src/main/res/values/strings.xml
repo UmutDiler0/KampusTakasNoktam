@@ -42,6 +42,11 @@
     <string name="nav_my_items">My Items</string>
     <string name="nav_my_ads">My Ads</string>
     <string name="nav_profile">Profile</string>
+    <string name="basket_empty">Your basket is empty</string>
+    <string name="basket_suggestions">Suggested for you</string>
+    <string name="basket_checkout">Checkout</string>
+    <string name="basket_total">Total</string>
+    <string name="action_remove">Remove</string>
     <string name="profile_full_name">Ayse Kaya</string>
     <string name="profile_email">ayse.kaya@kampusmail.com</string>
     <string name="profile_section_account">Account</string>

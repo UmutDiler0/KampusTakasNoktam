@@ -1,11 +1,14 @@
 package com.takasr.kampstakasnoktam.ui
 
 import com.takasr.kampstakasnoktam.base.BaseViewModel
+import com.takasr.kampstakasnoktam.data.BasketRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : BaseViewModel<HomeUiData>(HomeUiData.Initial) {
+class HomeViewModel @Inject constructor(
+    private val basketRepository: BasketRepository
+) : BaseViewModel<HomeUiData>(HomeUiData.Initial) {
 
     fun onQueryChanged(query: String) {
         updateData { current ->
@@ -24,6 +27,13 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeUiData>(HomeUiData
                     }
                 }
             )
+        }
+    }
+
+    fun onAddToBasket(itemId: Int) {
+        val item = (uiState.value as? com.takasr.kampstakasnoktam.base.UiState.Success)?.data?.ads?.find { it.id == itemId }
+        item?.let {
+            basketRepository.addToBasket(it)
         }
     }
 }
