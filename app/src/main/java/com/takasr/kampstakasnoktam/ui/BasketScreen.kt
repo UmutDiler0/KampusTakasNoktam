@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -37,8 +38,8 @@ fun BasketScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(id = R.string.nav_basket)) },
+            CenterAlignedTopAppBar(
+                title = { Text(text = stringResource(id = R.string.nav_basket), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -46,7 +47,10 @@ fun BasketScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
         bottomBar = {
@@ -71,7 +75,7 @@ fun BasketScreen(
                             EmptyBasketContent()
                         }
                     } else {
-                        items(uiData.basketItems) { item ->
+                        items(uiData.basketItems, key = { it.id }) { item ->
                             BasketItemRow(
                                 item = item,
                                 onRemoveClick = { viewModel.onRemoveFromBasket(item.id) }
@@ -81,6 +85,7 @@ fun BasketScreen(
 
                     if (uiData.suggestions.isNotEmpty()) {
                         item {
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = stringResource(id = R.string.basket_suggestions),
                                 style = MaterialTheme.typography.titleMedium,
@@ -93,7 +98,7 @@ fun BasketScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(bottom = 16.dp)
                             ) {
-                                items(uiData.suggestions) { item ->
+                                items(uiData.suggestions, key = { it.id }) { item ->
                                     SuggestionCard(
                                         item = item,
                                         onAddClick = { viewModel.onAddToBasket(item) }
@@ -105,8 +110,9 @@ fun BasketScreen(
                 }
             }
             else -> {
-                // Handle Loading/Error if needed, but for now just Box
-                Box(modifier = Modifier.padding(paddingValues))
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
@@ -119,12 +125,12 @@ fun BasketItemRow(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -132,21 +138,22 @@ fun BasketItemRow(
                 model = item.imageUrl,
                 contentDescription = item.title,
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .size(90.dp)
+                    .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "${item.price} TL",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
@@ -156,11 +163,15 @@ fun BasketItemRow(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
-            IconButton(onClick = onRemoveClick) {
+            IconButton(
+                onClick = onRemoveClick,
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(id = R.string.action_remove),
-                    tint = MaterialTheme.colorScheme.error
+                    contentDescription = stringResource(id = R.string.action_remove)
                 )
             }
         }
@@ -174,9 +185,10 @@ fun SuggestionCard(
 ) {
     Card(
         modifier = Modifier
-            .width(140.dp)
+            .width(160.dp)
             .clickable(onClick = onAddClick),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
     ) {
         Column {
             AsyncImage(
@@ -184,30 +196,35 @@ fun SuggestionCard(
                 contentDescription = item.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(90.dp),
+                    .height(100.dp),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.padding(8.dp)) {
+            Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.labelLarge,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "${item.price} TL",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
                 Button(
                     onClick = onAddClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp),
+                        .padding(top = 8.dp),
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = stringResource(id = R.string.action_add_basket), style = MaterialTheme.typography.labelSmall)
+                    Text(
+                        text = stringResource(id = R.string.action_add_basket),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
         }
@@ -217,9 +234,10 @@ fun SuggestionCard(
 @Composable
 fun CheckoutSection(totalPrice: Double) {
     Surface(
-        tonalElevation = 4.dp,
+        tonalElevation = 8.dp,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        color = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
@@ -233,23 +251,30 @@ fun CheckoutSection(totalPrice: Double) {
             ) {
                 Text(
                     text = stringResource(id = R.string.basket_total),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "$totalPrice TL",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = { /* TODO: Implement Checkout */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
-                Text(text = stringResource(id = R.string.basket_checkout))
+                Text(
+                    text = stringResource(id = R.string.basket_checkout),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -260,14 +285,20 @@ fun EmptyBasketContent() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 48.dp),
+            .padding(vertical = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            text = "🛒",
+            style = MaterialTheme.typography.displayLarge
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
             text = stringResource(id = R.string.basket_empty),
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
         )
     }
 }

@@ -10,7 +10,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +37,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Mood
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +68,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
@@ -66,6 +79,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
 import kotlinx.coroutines.delay
@@ -112,10 +126,21 @@ fun ChatDetailScreen(
         inputText = ""
 
         val now = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-        messages.add(ChatMessage(id = nextId++, text = text, isMine = true, timestamp = now))
+        val messageId = nextId++
+        messages.add(ChatMessage(id = messageId, text = text, isMine = true, timestamp = now, status = MessageStatus.SENT))
 
         // Simulate typing → reply after 3 s
         scope.launch {
+            delay(600)
+            val index1 = messages.indexOfFirst { it.id == messageId }
+            if (index1 != -1) {
+                messages[index1] = messages[index1].copy(status = MessageStatus.DELIVERED)
+            }
+            delay(800)
+            val index2 = messages.indexOfFirst { it.id == messageId }
+            if (index2 != -1) {
+                messages[index2] = messages[index2].copy(status = MessageStatus.READ)
+            }
             delay(400)
             isTyping = true
             delay(3000)
@@ -175,7 +200,7 @@ fun ChatDetailScreen(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.tertiary)
+                                            .background(Color(0xFF25D366))
                                     )
                                 }
                             }
@@ -185,20 +210,20 @@ fun ChatDetailScreen(
                             Text(
                                 text = conversation.participantName,
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onBackground
+                                fontWeight = FontWeight.SemiBold
                             )
                             if (isTyping) {
                                 Text(
                                     text = stringResource(R.string.chat_typing),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Medium
                                 )
                             } else if (conversation.isOnline) {
                                 Text(
                                     text = stringResource(R.string.chat_online),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.tertiary
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -209,6 +234,29 @@ fun ChatDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.seller_back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Videocam,
+                            contentDescription = "Video Call",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Call,
+                            contentDescription = "Voice Call",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More Options",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },
@@ -230,41 +278,47 @@ fun ChatDetailScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            state = listState,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = dimensionResource(R.dimen.screen_horizontal_padding)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs)),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                top = dimensionResource(R.dimen.spacing_md),
-                bottom = dimensionResource(R.dimen.spacing_md)
-            )
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            items(messages, key = { it.id }) { msg ->
-                AnimatedVisibility(
-                    visible = true,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(durationMillis = 280)
-                    ) + fadeIn(animationSpec = tween(durationMillis = 280))
-                ) {
-                    MessageBubble(message = msg)
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = dimensionResource(R.dimen.screen_horizontal_padding)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs)),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    top = dimensionResource(R.dimen.spacing_md),
+                    bottom = dimensionResource(R.dimen.spacing_md)
+                )
+            ) {
+                items(messages, key = { it.id }) { msg ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = slideInVertically(
+                            initialOffsetY = { it },
+                            animationSpec = tween(durationMillis = 280)
+                        ) + fadeIn(animationSpec = tween(durationMillis = 280))
+                    ) {
+                        MessageBubble(message = msg)
+                    }
                 }
-            }
 
-            // Typing indicator bubble
-            item(key = "typing") {
-                AnimatedVisibility(
-                    visible = isTyping,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(200)
-                    ) + fadeIn(tween(200)),
-                    exit = fadeOut(tween(150))
-                ) {
-                    TypingIndicatorBubble()
+                // Typing indicator bubble
+                item(key = "typing") {
+                    AnimatedVisibility(
+                        visible = isTyping,
+                        enter = slideInVertically(
+                            initialOffsetY = { it },
+                            animationSpec = tween(200)
+                        ) + fadeIn(tween(200)),
+                        exit = fadeOut(tween(150))
+                    ) {
+                        TypingIndicatorBubble()
+                    }
                 }
             }
         }
@@ -278,37 +332,38 @@ private fun MessageBubble(
     message: ChatMessage,
     modifier: Modifier = Modifier
 ) {
-    val bubbleColor = if (message.isMine)
+    val bubbleColor = if (message.isMine) {
         MaterialTheme.colorScheme.primary
-    else
+    } else {
         MaterialTheme.colorScheme.surface
+    }
 
-    val textColor = if (message.isMine)
+    val textColor = if (message.isMine) {
         MaterialTheme.colorScheme.onPrimary
-    else
+    } else {
         MaterialTheme.colorScheme.onSurface
+    }
 
-    val timeColor = if (message.isMine)
-        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.65f)
-    else
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.50f)
+    val timeColor = if (message.isMine) {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.70f)
+    } else {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.60f)
+    }
 
-    val cornerRadius = dimensionResource(R.dimen.chat_bubble_corner_radius)
-    val smallCorner = 4.dp
-
+    // WhatsApp shape tails (top-right for mine, top-left for others)
     val shape = if (message.isMine) {
         RoundedCornerShape(
-            topStart = cornerRadius,
-            topEnd = cornerRadius,
-            bottomStart = cornerRadius,
-            bottomEnd = smallCorner
+            topStart = 12.dp,
+            topEnd = 2.dp,
+            bottomStart = 12.dp,
+            bottomEnd = 12.dp
         )
     } else {
         RoundedCornerShape(
-            topStart = smallCorner,
-            topEnd = cornerRadius,
-            bottomStart = cornerRadius,
-            bottomEnd = cornerRadius
+            topStart = 2.dp,
+            topEnd = 12.dp,
+            bottomStart = 12.dp,
+            bottomEnd = 12.dp
         )
     }
 
@@ -319,14 +374,11 @@ private fun MessageBubble(
         Surface(
             shape = shape,
             color = bubbleColor,
-            shadowElevation = if (message.isMine) 0.dp else 1.dp,
+            shadowElevation = 0.5.dp,
             modifier = Modifier.widthIn(max = 280.dp)
         ) {
             Column(
-                modifier = Modifier.padding(
-                    horizontal = dimensionResource(R.dimen.chat_bubble_horizontal_padding),
-                    vertical = dimensionResource(R.dimen.chat_bubble_vertical_padding)
-                )
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
                     text = message.text,
@@ -334,14 +386,78 @@ private fun MessageBubble(
                     color = textColor
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = message.timestamp,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = timeColor,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
                     modifier = Modifier.align(Alignment.End)
-                )
+                ) {
+                    Text(
+                        text = message.timestamp,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = timeColor
+                    )
+                    if (message.isMine) {
+                        MessageStatusTick(status = message.status)
+                    }
+                }
             }
         }
+    }
+}
+
+// ─── Message Status Ticks ───────────────────────────────────────────────────
+
+@Composable
+private fun MessageStatusTick(status: MessageStatus, modifier: Modifier = Modifier.size(16.dp)) {
+    when (status) {
+        MessageStatus.SENT -> SingleCheckmark(modifier)
+        MessageStatus.DELIVERED -> DoubleCheckmark(isRead = false, modifier)
+        MessageStatus.READ -> DoubleCheckmark(isRead = true, modifier)
+    }
+}
+
+@Composable
+private fun SingleCheckmark(modifier: Modifier = Modifier) {
+    val color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+    Canvas(modifier = modifier) {
+        val path = Path().apply {
+            moveTo(4.dp.toPx(), 8.dp.toPx())
+            lineTo(7.dp.toPx(), 11.dp.toPx())
+            lineTo(12.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+    }
+}
+
+@Composable
+private fun DoubleCheckmark(isRead: Boolean, modifier: Modifier = Modifier) {
+    val color = if (isRead) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+    Canvas(modifier = modifier) {
+        val path1 = Path().apply {
+            moveTo(2.dp.toPx(), 8.dp.toPx())
+            lineTo(5.dp.toPx(), 11.dp.toPx())
+            lineTo(10.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path1,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+        
+        val path2 = Path().apply {
+            moveTo(6.dp.toPx(), 8.dp.toPx())
+            lineTo(9.dp.toPx(), 11.dp.toPx())
+            lineTo(14.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path2,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
     }
 }
 
@@ -349,8 +465,18 @@ private fun MessageBubble(
 
 @Composable
 private fun TypingIndicatorBubble(modifier: Modifier = Modifier) {
-    val dotSize = dimensionResource(R.dimen.chat_typing_dot_size)
-    val cornerRadius = dimensionResource(R.dimen.chat_bubble_corner_radius)
+    val bubbleColor = MaterialTheme.colorScheme.surface
+    
+    val infiniteTransition = rememberInfiniteTransition(label = "typing")
+    val animationProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "progress"
+    )
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -358,50 +484,39 @@ private fun TypingIndicatorBubble(modifier: Modifier = Modifier) {
     ) {
         Surface(
             shape = RoundedCornerShape(
-                topStart = 4.dp,
-                topEnd = cornerRadius,
-                bottomStart = cornerRadius,
-                bottomEnd = cornerRadius
+                topStart = 2.dp,
+                topEnd = 12.dp,
+                bottomStart = 12.dp,
+                bottomEnd = 12.dp
             ),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 1.dp
+            color = bubbleColor,
+            shadowElevation = 0.5.dp
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TypingDot(delayMillis = 0)
-                TypingDot(delayMillis = 160)
-                TypingDot(delayMillis = 320)
+                TypingDot(progress = animationProgress, index = 0)
+                TypingDot(progress = animationProgress, index = 1)
+                TypingDot(progress = animationProgress, index = 2)
             }
         }
     }
 }
 
 @Composable
-private fun TypingDot(delayMillis: Int) {
-    val infiniteTransition = rememberInfiniteTransition(label = "dot_$delayMillis")
-    val offsetY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = -6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 500,
-                delayMillis = delayMillis,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "dotOffset_$delayMillis"
-    )
-
+private fun TypingDot(progress: Float, index: Int) {
+    val phaseOffset = index * 2.0 * Math.PI / 3.0
+    val angle = (progress * 2.0 * Math.PI) - phaseOffset
+    val offsetY = (Math.sin(angle) * 4.dp.value).toFloat()
+    
     Box(
         modifier = Modifier
             .size(8.dp)
             .offset(y = offsetY.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
+            .background(MaterialTheme.colorScheme.onSurfaceVariant)
     )
 }
 
@@ -414,63 +529,93 @@ private fun ChatInputBar(
     onSend: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 8.dp,
-        tonalElevation = 2.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = dimensionResource(R.dimen.spacing_sm), vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
-        ) {
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.chat_type_hint),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    )
-                },
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { onSend() }),
-                maxLines = 4,
-                singleLine = false
-            )
+    val inputBgColor = MaterialTheme.colorScheme.surface
+    val iconColor = MaterialTheme.colorScheme.primary
 
-            // Send button
-            val canSend = value.trim().isNotEmpty()
-            IconButton(
-                onClick = onSend,
-                enabled = canSend,
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Surface(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(25.dp),
+            color = inputBgColor,
+            shadowElevation = 1.dp
+        ) {
+            Row(
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (canSend) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
-                    )
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.chat_send),
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(20.dp)
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Mood,
+                        contentDescription = "Emojis",
+                        tint = iconColor
+                    )
+                }
+
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.weight(1f),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.chat_type_hint),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { onSend() }),
+                    maxLines = 4,
+                    singleLine = false
                 )
+
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.AttachFile,
+                        contentDescription = "Attach",
+                        tint = iconColor
+                    )
+                }
+
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Camera",
+                        tint = iconColor
+                    )
+                }
             }
+        }
+
+        val hasText = value.trim().isNotEmpty()
+        IconButton(
+            onClick = { if (hasText) onSend() else {} },
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(
+                imageVector = if (hasText) Icons.AutoMirrored.Filled.Send else Icons.Default.Mic,
+                contentDescription = if (hasText) "Send" else "Record Voice",
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(22.dp)
+            )
         }
     }
 }

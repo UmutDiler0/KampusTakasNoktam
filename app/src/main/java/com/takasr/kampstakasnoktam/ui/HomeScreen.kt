@@ -42,6 +42,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -170,7 +172,7 @@ fun HomeScreen(
                 onItemClick = onItemClick,
                 onFavoriteToggle = viewModel::onFavoriteToggle,
                 onFilterClick = { },
-                onAddToBasketClick = { }
+                onAddToBasketClick = viewModel::onAddToBasket
             )
         }
     }
@@ -209,7 +211,7 @@ fun FavoritesScreen(
                 onItemClick = onItemClick,
                 onFavoriteToggle = viewModel::onFavoriteToggle,
                 onFilterClick = { },
-                onAddToBasketClick = { }
+                onAddToBasketClick = viewModel::onAddToBasket
             )
         }
     }
@@ -285,6 +287,10 @@ private fun MainTabScaffold(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val basketViewModel: BasketViewModel = hiltViewModel()
+    val basketState by basketViewModel.uiState.collectAsState()
+    val basketCount = (basketState as? UiState.Success)?.data?.basketItems?.size ?: 0
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -305,10 +311,20 @@ private fun MainTabScaffold(
                             )
                         }
                         IconButton(onClick = onBasketClick) {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingBasket,
-                                contentDescription = stringResource(id = R.string.action_basket)
-                            )
+                            BadgedBox(
+                                badge = {
+                                    if (basketCount > 0) {
+                                        Badge {
+                                            Text(text = basketCount.toString())
+                                        }
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingBasket,
+                                    contentDescription = stringResource(id = R.string.action_basket)
+                                )
+                            }
                         }
                     }
                 )
@@ -705,7 +721,7 @@ private fun HomeAdCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = item.price,
+                    text = "${item.price} TL",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )

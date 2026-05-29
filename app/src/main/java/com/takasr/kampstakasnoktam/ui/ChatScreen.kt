@@ -1,7 +1,9 @@
 package com.takasr.kampstakasnoktam.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +21,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +39,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -73,12 +84,41 @@ fun ChatScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More Options",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
                     navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Chat,
+                    contentDescription = "Start Chat"
+                )
+            }
         }
     ) { innerPadding ->
         if (conversations.isEmpty()) {
@@ -193,17 +233,29 @@ private fun ConversationRow(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = conversation.lastMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (conversation.unreadCount > 0)
-                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.80f)
-                else
-                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.50f),
-                fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                if (conversation.lastMessageIsMine) {
+                    ListMessageStatusTick(
+                        status = conversation.lastMessageStatus,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+                Text(
+                    text = conversation.lastMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (conversation.unreadCount > 0)
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.80f)
+                    else
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.50f),
+                    fontWeight = if (conversation.unreadCount > 0) FontWeight.SemiBold else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         // ── Timestamp + unread badge ──────────────────────────────────────────
@@ -289,5 +341,59 @@ private fun ChatEmptyState(modifier: Modifier = Modifier) {
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
+    }
+}
+
+@Composable
+private fun ListMessageStatusTick(status: MessageStatus, modifier: Modifier = Modifier) {
+    when (status) {
+        MessageStatus.SENT -> ListSingleCheckmark(modifier)
+        MessageStatus.DELIVERED -> ListDoubleCheckmark(isRead = false, modifier)
+        MessageStatus.READ -> ListDoubleCheckmark(isRead = true, modifier)
+    }
+}
+
+@Composable
+private fun ListSingleCheckmark(modifier: Modifier = Modifier) {
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+    Canvas(modifier = modifier) {
+        val path = Path().apply {
+            moveTo(4.dp.toPx(), 8.dp.toPx())
+            lineTo(7.dp.toPx(), 11.dp.toPx())
+            lineTo(12.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+    }
+}
+
+@Composable
+private fun ListDoubleCheckmark(isRead: Boolean, modifier: Modifier = Modifier) {
+    val color = if (isRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+    Canvas(modifier = modifier) {
+        val path1 = Path().apply {
+            moveTo(2.dp.toPx(), 8.dp.toPx())
+            lineTo(5.dp.toPx(), 11.dp.toPx())
+            lineTo(10.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path1,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+        
+        val path2 = Path().apply {
+            moveTo(6.dp.toPx(), 8.dp.toPx())
+            lineTo(9.dp.toPx(), 11.dp.toPx())
+            lineTo(14.dp.toPx(), 5.dp.toPx())
+        }
+        drawPath(
+            path = path2,
+            color = color,
+            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
     }
 }

@@ -2,6 +2,10 @@ package com.takasr.kampstakasnoktam.ui
 
 // ─── Domain Models ────────────────────────────────────────────────────────────
 
+enum class MessageStatus {
+    SENT, DELIVERED, READ
+}
+
 data class ChatConversation(
     val id: Int,
     val participantName: String,
@@ -10,14 +14,17 @@ data class ChatConversation(
     val lastMessage: String,
     val timestamp: String,
     val unreadCount: Int = 0,
-    val isOnline: Boolean = false
+    val isOnline: Boolean = false,
+    val lastMessageIsMine: Boolean = false,
+    val lastMessageStatus: MessageStatus = MessageStatus.READ
 )
 
 data class ChatMessage(
     val id: Int,
     val text: String,
     val isMine: Boolean,
-    val timestamp: String
+    val timestamp: String,
+    val status: MessageStatus = MessageStatus.READ
 )
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -33,7 +40,8 @@ object ChatMockData {
             lastMessage = "MacBook hâlâ satılık mı?",
             timestamp = "14:32",
             unreadCount = 3,
-            isOnline = true
+            isOnline = true,
+            lastMessageIsMine = false
         ),
         ChatConversation(
             id = 2,
@@ -42,7 +50,9 @@ object ChatMockData {
             lastMessage = "Tamam, yarın 10:00'da görüşelim.",
             timestamp = "12:05",
             unreadCount = 0,
-            isOnline = false
+            isOnline = false,
+            lastMessageIsMine = true,
+            lastMessageStatus = MessageStatus.READ
         ),
         ChatConversation(
             id = 3,
@@ -52,7 +62,8 @@ object ChatMockData {
             lastMessage = "Fiyat konusunda anlaşırız, merak etme.",
             timestamp = "Dün",
             unreadCount = 1,
-            isOnline = true
+            isOnline = true,
+            lastMessageIsMine = false
         ),
         ChatConversation(
             id = 4,
@@ -61,7 +72,9 @@ object ChatMockData {
             lastMessage = "Ürünü aldım, teşekkürler 🙏",
             timestamp = "Dün",
             unreadCount = 0,
-            isOnline = false
+            isOnline = false,
+            lastMessageIsMine = true,
+            lastMessageStatus = MessageStatus.READ
         ),
         ChatConversation(
             id = 5,
@@ -71,7 +84,8 @@ object ChatMockData {
             lastMessage = "İlan hâlâ aktif mi?",
             timestamp = "Pzt",
             unreadCount = 0,
-            isOnline = false
+            isOnline = false,
+            lastMessageIsMine = false
         )
     )
 
@@ -81,20 +95,20 @@ object ChatMockData {
     fun initialMessages(conversationId: Int): List<ChatMessage> = when (conversationId) {
         1 -> listOf(
             ChatMessage(1, "Merhaba! MacBook satılık mı?", false, "14:28"),
-            ChatMessage(2, "Evet, hâlâ satılık.", true, "14:29"),
+            ChatMessage(2, "Evet, hâlâ satılık.", true, "14:29", MessageStatus.READ),
             ChatMessage(3, "Fiyatta indirim yapabilir misiniz?", false, "14:30"),
-            ChatMessage(4, "Küçük bir indirim yapabilirim, makul teklif bekliyorum.", true, "14:31"),
+            ChatMessage(4, "Küçük bir indirim yapabilirim, makul teklif bekliyorum.", true, "14:31", MessageStatus.READ),
             ChatMessage(5, "MacBook hâlâ satılık mı?", false, "14:32")
         )
         2 -> listOf(
             ChatMessage(1, "Merhaba, masayı hâlâ satıyor musunuz?", false, "11:50"),
-            ChatMessage(2, "Evet! Ne zaman bakabilirsiniz?", true, "11:52"),
+            ChatMessage(2, "Evet! Ne zaman bakabilirsiniz?", true, "11:52", MessageStatus.READ),
             ChatMessage(3, "Yarın sabah müsaitim.", false, "11:58"),
             ChatMessage(4, "Tamam, yarın 10:00'da görüşelim.", false, "12:05")
         )
         else -> listOf(
             ChatMessage(1, "Merhaba, ilanınızı gördüm. İlgileniyorum.", false, "09:00"),
-            ChatMessage(2, "Harika! Detayları konuşabiliriz.", true, "09:05")
+            ChatMessage(2, "Harika! Detayları konuşabiliriz.", true, "09:05", MessageStatus.READ)
         )
     }
 

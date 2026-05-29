@@ -16,6 +16,7 @@ import com.takasr.kampstakasnoktam.splash.SplashScreen
 import com.takasr.kampstakasnoktam.splash.SplashViewModel
 import com.takasr.kampstakasnoktam.ui.AddItemScreen
 import com.takasr.kampstakasnoktam.ui.BasketScreen
+import com.takasr.kampstakasnoktam.ui.BasketViewModel
 import com.takasr.kampstakasnoktam.ui.BottomNavTab
 import com.takasr.kampstakasnoktam.ui.ChatDetailScreen
 import com.takasr.kampstakasnoktam.ui.ChatScreen
@@ -166,7 +167,11 @@ fun AppNavHost(
         }
 
         composable(route = AppDestination.Basket.route) {
-            BasketScreen()
+            val basketViewModel: BasketViewModel = hiltViewModel()
+            BasketScreen(
+                onBackClick = { navController.popBackStack() },
+                viewModel = basketViewModel
+            )
         }
 
         composable(
@@ -179,7 +184,7 @@ fun AppNavHost(
             ItemDetailScreen(
                 itemId = itemId,
                 onBackClick = { navController.popBackStack() },
-                onAddToBasket = { /* TODO: Implement add to basket */ },
+                onAddToBasket = homeViewModel::onAddToBasket,
                 onSellerClick = { sellerId ->
                     navController.navigate(AppDestination.SellerProfile.createRoute(sellerId))
                 }
