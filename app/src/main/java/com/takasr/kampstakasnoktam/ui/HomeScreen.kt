@@ -95,47 +95,12 @@ private data class BottomNavItem(
     val icon: ImageVector
 )
 
-private data class ProfileMenuItem(
-    val titleRes: Int,
-    val icon: ImageVector
-)
-
-private data class ProfileMenuSection(
-    val titleRes: Int,
-    val items: List<ProfileMenuItem>
-)
-
 // Only the 4 regular tabs — AddItem is rendered separately as FAB
 private val regularNavItems = listOf(
     BottomNavItem(BottomNavTab.Home, R.string.nav_home, Icons.Default.Home),
     BottomNavItem(BottomNavTab.Favorites, R.string.nav_favorite, Icons.Default.Favorite),
     BottomNavItem(BottomNavTab.MyAds, R.string.nav_my_ads, Icons.Default.List),
     BottomNavItem(BottomNavTab.Profile, R.string.nav_profile, Icons.Default.Person)
-)
-
-private val profileMenuSections = listOf(
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_account,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_account_info, Icons.Default.Person)
-        )
-    ),
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_preferences,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_theme, Icons.Default.DarkMode),
-            ProfileMenuItem(R.string.menu_notifications, Icons.Default.Notifications),
-            ProfileMenuItem(R.string.menu_languages, Icons.Default.Language)
-        )
-    ),
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_support,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_privacy, Icons.Default.Security),
-            ProfileMenuItem(R.string.menu_help, Icons.Default.HelpOutline),
-            ProfileMenuItem(R.string.menu_sign_out, Icons.Default.Logout)
-        )
-    )
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -255,29 +220,11 @@ fun MyAdsScreen(
     }
 }
 
-@Composable
-fun ProfileScreen(
-    onTabSelected: (BottomNavTab) -> Unit,
-    onChatClick: () -> Unit,
-    onBasketClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    MainTabScaffold(
-        selectedTab = BottomNavTab.Profile,
-        titleRes = R.string.nav_profile,
-        onTabSelected = onTabSelected,
-        onChatClick = onChatClick,
-        onBasketClick = onBasketClick,
-        showTopBar = false,
-        modifier = modifier
-    ) {
-        ProfileContent()
-    }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainTabScaffold(
+fun MainTabScaffold(
     selectedTab: BottomNavTab,
     titleRes: Int,
     onTabSelected: (BottomNavTab) -> Unit,
@@ -474,113 +421,7 @@ private fun AddItemFab(onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun ProfileContent(modifier: Modifier = Modifier) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = stringResource(id = R.string.nav_profile),
-                    modifier = Modifier
-                        .size(108.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
 
-                Text(
-                    text = stringResource(id = R.string.profile_full_name),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = stringResource(id = R.string.profile_email),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                )
-            }
-        }
-
-        items(profileMenuSections.size) { sectionIndex ->
-            val section = profileMenuSections[sectionIndex]
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(id = section.titleRes),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                    ) {
-                        section.items.forEach { menuItem ->
-                            ProfileMenuRow(
-                                icon = menuItem.icon,
-                                title = stringResource(id = menuItem.titleRes),
-                                onClick = { }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProfileMenuRow(
-    icon: ImageVector,
-    title: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Icon(
-            imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-    }
-}
 
 @Composable
 private fun HomeContent(

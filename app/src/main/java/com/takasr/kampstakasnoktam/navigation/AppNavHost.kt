@@ -26,6 +26,7 @@ import com.takasr.kampstakasnoktam.ui.HomeViewModel
 import com.takasr.kampstakasnoktam.ui.ItemDetailScreen
 import com.takasr.kampstakasnoktam.ui.MyAdsScreen
 import com.takasr.kampstakasnoktam.ui.ProfileScreen
+import com.takasr.kampstakasnoktam.ui.SettingsViewModel
 import com.takasr.kampstakasnoktam.ui.seller.SellerScreen
 import kotlinx.coroutines.flow.collectLatest
 
@@ -137,10 +138,12 @@ fun AppNavHost(
         }
 
         composable(route = AppDestination.Profile.route) {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
             ProfileScreen(
                 onTabSelected = navigateToMainTab,
                 onChatClick = { navController.navigate(AppDestination.Chat.route) },
-                onBasketClick = { navController.navigate(AppDestination.Basket.route) }
+                onBasketClick = { navController.navigate(AppDestination.Basket.route) },
+                settingsViewModel = settingsViewModel
             )
         }
 
