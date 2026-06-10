@@ -1,14 +1,33 @@
 package com.takasr.kampstakasnoktam.ui
 
+import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.base.BaseViewModel
+import com.takasr.kampstakasnoktam.data.AdRepository
 import com.takasr.kampstakasnoktam.data.BasketRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val adRepository: AdRepository,
     private val basketRepository: BasketRepository
 ) : BaseViewModel<HomeUiData>(HomeUiData.Initial) {
+
+    init {
+        refreshAds()
+    }
+
+    fun refreshAds() {
+        setLoading()
+        viewModelScope.launch {
+            adRepository.getAds().onSuccess { ads ->
+                setSuccess(HomeUiData(ads = ads))
+            }.onFailure { error ->
+                setError(error.message ?: "İlanlar yüklenirken bir hata oluştu")
+            }
+        }
+    }
 
     fun onQueryChanged(query: String) {
         updateData { current ->

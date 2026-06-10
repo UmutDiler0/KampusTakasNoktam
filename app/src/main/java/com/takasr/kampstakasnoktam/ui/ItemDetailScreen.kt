@@ -48,31 +48,21 @@ data class ItemDetailData(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemDetailScreen(
-    itemId: Int,
+    item: HomeAdItem?,
     onBackClick: () -> Unit = {},
     onAddToBasket: (Int) -> Unit = {},
     onSellerClick: (sellerId: Int) -> Unit = {},
+    onSendMessageClick: (targetUserId: String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    // Mock data - in real app this would come from ViewModel
-    val itemDetail = remember {
-        ItemDetailData(
-            id = itemId,
-            sellerId = 1, // TODO: map from real item data
-            title = "MacBook Air M1 256GB",
-            price = "24.500 TL",
-            sellerName = "Ayşe K.",
-            location = "İTÜ Ayazağa",
-            imageUrls = listOf(
-                "https://picsum.photos/seed/ad-1/600/400",
-                "https://picsum.photos/seed/ad-2/600/400",
-                "https://picsum.photos/seed/ad-3/600/400"
-            ),
-            description = "MacBook Air M1 256GB model laptop. Excellent condition, barely used. Comes with original box and charger. Perfect for students and professionals.",
-            sellerDescription = "Hi! I'm Ayşe, a 3rd year Computer Engineering student at ITU. I sell quality second-hand items that I carefully check before listing.",
-            itemInformation = "Brand: Apple\nModel: MacBook Air\nYear: 2020\nProcessor: M1 Chip\nRAM: 8GB\nStorage: 256GB SSD\nDisplay: 13.3 inch Retina\nCondition: Like new"
-        )
+    if (item == null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
     }
+
+    val itemDetail = remember(item) { item.toItemDetailData() }
 
     var showFullScreenImage by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableStateOf(0) }
@@ -107,13 +97,14 @@ fun ItemDetailScreen(
             // Price and Add to Basket Section
             PriceAndBasketSection(
                 price = itemDetail.price,
-                onAddToBasket = { onAddToBasket(itemId) }
+                onAddToBasket = { onAddToBasket(item.id) }
             )
 
             // Item Details Tabs
             ItemDetailsTabs(
                 itemDetail = itemDetail,
-                onSellerClick = onSellerClick
+                onSellerClick = onSellerClick,
+                onSendMessageClick = onSendMessageClick
             )
         }
     }
@@ -126,6 +117,37 @@ fun ItemDetailScreen(
             onDismiss = { showFullScreenImage = false }
         )
     }
+}
+
+private fun HomeAdItem.toItemDetailData(): ItemDetailData {
+    val priceText = if (price % 1.0 == 0.0) {
+        "${price.toLong()} TL"
+    } else {
+        String.format("%.2f TL", price)
+    }
+
+    val urls = imageUrls.map { url ->
+        if (url.startsWith("http")) url else "https://kampustakasnoktam.keserbaros.com$url"
+    }
+
+    return ItemDetailData(
+        id = id,
+        sellerId = 0,
+        title = title,
+        price = priceText,
+        sellerName = "Satıcı",
+        location = location,
+        imageUrls = if (urls.isNotEmpty()) urls else listOf("https://picsum.photos/seed/${id}/600/400"),
+        description = description,
+        sellerDescription = "Satıcı detayları henüz servis tarafından sağlanmıyor.",
+        itemInformation = buildString {
+            append("Condition: $condition\n")
+            append("Category: $category\n")
+            append("Swap: ${if (isSwap) "Yes" else "No"}\n")
+            append("Created At: $createdAt\n")
+            append("Active: ${if (isActive) "Yes" else "No"}")
+        }
+    )
 }
 
 @Composable
@@ -225,6 +247,7 @@ private fun PriceAndBasketSection(
 private fun ItemDetailsTabs(
     itemDetail: ItemDetailData,
     onSellerClick: (Int) -> Unit,
+    onSendMessageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -252,7 +275,8 @@ private fun ItemDetailsTabs(
             0 -> ItemDescriptionTab(itemDetail.description)
             1 -> SellerDescriptionTab(
                 itemDetail = itemDetail,
-                onSellerClick = onSellerClick
+                onSellerClick = onSellerClick,
+                onSendMessageClick = onSendMessageClick
             )
             2 -> ItemInformationTab(itemDetail.itemInformation)
         }
@@ -283,19 +307,30 @@ private fun ItemDescriptionTab(description: String) {
 @Composable
 private fun SellerDescriptionTab(
     itemDetail: ItemDetailData,
-    onSellerClick: (Int) -> Unit
+    onSellerClick: (Int) -> Unit,
+    onSendMessageClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = "About the Seller",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "About the Seller",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            
+            TextButton(onClick = { onSendMessageClick(itemDetail.sellerId.toString()) }) {
+                Text("Send Message")
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Clickable seller header ─ navigates to SellerScreen
         Card(

@@ -2,6 +2,8 @@ package com.takasr.kampstakasnoktam.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
@@ -24,9 +26,12 @@ import com.takasr.kampstakasnoktam.ui.FavoritesScreen
 import com.takasr.kampstakasnoktam.ui.HomeScreen
 import com.takasr.kampstakasnoktam.ui.HomeViewModel
 import com.takasr.kampstakasnoktam.ui.ItemDetailScreen
+import com.takasr.kampstakasnoktam.ui.ItemDetailViewModel
+import com.takasr.kampstakasnoktam.ui.HomeUiData
 import com.takasr.kampstakasnoktam.ui.MyAdsScreen
 import com.takasr.kampstakasnoktam.ui.ProfileScreen
 import com.takasr.kampstakasnoktam.ui.seller.SellerScreen
+import com.takasr.kampstakasnoktam.base.UiState
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -181,12 +186,25 @@ fun AppNavHost(
             )
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+            val itemDetailViewModel: ItemDetailViewModel = hiltViewModel()
+            val homeState by homeViewModel.uiState.collectAsState()
+            val selectedItem = (homeState as? UiState.Success<HomeUiData>)?.data?.ads?.find { it.id == itemId }
+
+            LaunchedEffect(Unit) {
+                itemDetailViewModel.navigateToChat.collect { conversationId ->
+                    navController.navigate(AppDestination.ChatDetail.createRoute(conversationId))
+                }
+            }
+
             ItemDetailScreen(
-                itemId = itemId,
+                item = selectedItem,
                 onBackClick = { navController.popBackStack() },
                 onAddToBasket = homeViewModel::onAddToBasket,
                 onSellerClick = { sellerId ->
                     navController.navigate(AppDestination.SellerProfile.createRoute(sellerId))
+                },
+                onSendMessageClick = { targetUserId ->
+                    itemDetailViewModel.onSendMessageClick(targetUserId)
                 }
             )
         }

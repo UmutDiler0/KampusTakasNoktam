@@ -34,6 +34,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.takasr.kampstakasnoktam.R
 
 private enum class AuthMode {
@@ -45,9 +50,17 @@ private enum class AuthMode {
 @Composable
 fun AuthRoute(
     onLoginSuccess: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     var mode by rememberSaveable { mutableStateOf(AuthMode.Login) }
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState) {
+        if (uiState is AuthUiState.Success) {
+            onLoginSuccess()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -75,23 +88,38 @@ fun AuthRoute(
                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
             )
         ) {
-            when (mode) {
-                AuthMode.Login -> LoginScreen(
-                    modifier = Modifier.fillMaxWidth(),
-                    onLoginClick = onLoginSuccess,
-                    onForgotPasswordClick = { mode = AuthMode.ForgotPassword }
-                )
+            Box {
+                when (mode) {
+                    AuthMode.Login -> LoginScreen(
+                        modifier = Modifier.fillMaxWidth(),
+                        onLoginClick = { email, pass -> viewModel.login(email, pass) },
+                        onForgotPasswordClick = { mode = AuthMode.ForgotPassword },
+                        errorMessage = (uiState as? AuthUiState.Error)?.message
+                    )
 
-                AuthMode.Register -> RegisterScreen(
-                    modifier = Modifier.fillMaxWidth(),
-                    onRegisterClick = onLoginSuccess,
-                )
+                    AuthMode.Register -> RegisterScreen(
+                        modifier = Modifier.fillMaxWidth(),
+                        onRegisterClick = { name, email, pass -> viewModel.register(name, email, pass) },
+                        errorMessage = (uiState as? AuthUiState.Error)?.message
+                    )
 
-                AuthMode.ForgotPassword -> ForgotPasswordScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    onResetClick = { mode = AuthMode.Login },
-                    onBackToLoginClick = { mode = AuthMode.Login }
-                )
+                    AuthMode.ForgotPassword -> ForgotPasswordScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        onResetClick = { mode = AuthMode.Login },
+                        onBackToLoginClick = { mode = AuthMode.Login }
+                    )
+                }
+
+                if (uiState is AuthUiState.Loading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
         }
 
@@ -119,9 +147,10 @@ fun AuthRoute(
 
 @Composable
 private fun LoginScreen(
-    onLoginClick: () -> Unit,
+    onLoginClick: (String, String) -> Unit,
     onForgotPasswordClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -136,6 +165,10 @@ private fun LoginScreen(
             text = stringResource(id = R.string.auth_login_title),
             style = MaterialTheme.typography.headlineSmall
         )
+        errorMessage?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
         Spacer(modifier = Modifier.height(20.dp))
         AuthTextField(
             value = email,
@@ -155,7 +188,7 @@ private fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
-            onClick = onLoginClick,
+            onClick = { onLoginClick(email, password) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -170,8 +203,9 @@ private fun LoginScreen(
 
 @Composable
 private fun RegisterScreen(
-    onRegisterClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onRegisterClick: (String, String, String) -> Unit,
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     var fullName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
@@ -187,6 +221,10 @@ private fun RegisterScreen(
             text = stringResource(id = R.string.auth_register_title),
             style = MaterialTheme.typography.headlineSmall
         )
+        errorMessage?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
         Spacer(modifier = Modifier.height(20.dp))
         AuthTextField(
             value = fullName,
@@ -214,7 +252,7 @@ private fun RegisterScreen(
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
-            onClick = onRegisterClick,
+            onClick = { onRegisterClick(fullName, email, password) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {

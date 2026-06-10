@@ -75,6 +75,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.takasr.kampstakasnoktam.data.network.UserResponse
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -260,8 +261,11 @@ fun ProfileScreen(
     onTabSelected: (BottomNavTab) -> Unit,
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
     MainTabScaffold(
         selectedTab = BottomNavTab.Profile,
         titleRes = R.string.nav_profile,
@@ -271,7 +275,11 @@ fun ProfileScreen(
         showTopBar = false,
         modifier = modifier
     ) {
-        ProfileContent()
+        when (val state = uiState) {
+            is ProfileUiState.Loading -> LoadingContent()
+            is ProfileUiState.Error -> EmptyTabContent(title = state.message)
+            is ProfileUiState.Success -> ProfileContent(user = state.user)
+        }
     }
 }
 
@@ -475,7 +483,10 @@ private fun AddItemFab(onClick: () -> Unit) {
 }
 
 @Composable
-private fun ProfileContent(modifier: Modifier = Modifier) {
+private fun ProfileContent(
+    user: UserResponse,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -488,22 +499,38 @@ private fun ProfileContent(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = stringResource(id = R.string.nav_profile),
-                    modifier = Modifier
-                        .size(108.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
+                if (user.profileImageUrl != null) {
+                    AsyncImage(
+                        model = user.profileImageUrl,
+                        contentDescription = stringResource(id = R.string.nav_profile),
+                        modifier = Modifier
+                            .size(108.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(108.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = user.fullName.take(1).uppercase(),
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
 
                 Text(
-                    text = stringResource(id = R.string.profile_full_name),
+                    text = user.fullName,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = stringResource(id = R.string.profile_email),
+                    text = user.email,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                 )

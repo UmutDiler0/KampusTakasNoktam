@@ -52,6 +52,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.takasr.kampstakasnoktam.data.network.ChatConversation
 import com.takasr.kampstakasnoktam.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,10 +64,10 @@ import com.takasr.kampstakasnoktam.R
 fun ChatScreen(
     onBackClick: () -> Unit,
     onConversationClick: (Int) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
-    // Using mock data — swap with ViewModel state when ready
-    val conversations = ChatMockData.conversations
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -121,36 +126,50 @@ fun ChatScreen(
             }
         }
     ) { innerPadding ->
-        if (conversations.isEmpty()) {
-            ChatEmptyState(modifier = Modifier.padding(innerPadding))
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            ) {
-                itemsIndexed(
-                    items = conversations,
-                    key = { _, item -> item.id }
-                ) { index, conversation ->
-                    ConversationRow(
-                        conversation = conversation,
-                        onClick = { onConversationClick(conversation.id) }
-                    )
-                    if (index < conversations.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(
-                                start = dimensionResource(R.dimen.screen_horizontal_padding) +
-                                        dimensionResource(R.dimen.chat_avatar_size) +
-                                        dimensionResource(R.dimen.spacing_md)
-                            ),
-                            thickness = 0.6.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                        )
+        when (val state = uiState) {
+            is ChatUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+            is ChatUiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                }
+            }
+            is ChatUiState.Success -> {
+                if (state.conversations.isEmpty()) {
+                    ChatEmptyState(modifier = Modifier.padding(innerPadding))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        itemsIndexed(
+                            items = state.conversations,
+                            key = { _, item -> item.id }
+                        ) { index, conversation ->
+                            ConversationRow(
+                                conversation = conversation,
+                                onClick = { onConversationClick(conversation.id) }
+                            )
+                            if (index < state.conversations.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(
+                                        start = dimensionResource(R.dimen.screen_horizontal_padding) +
+                                                dimensionResource(R.dimen.chat_avatar_size) +
+                                                dimensionResource(R.dimen.spacing_md)
+                                    ),
+                                    thickness = 0.6.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                )
+                            }
+                        }
+
+                        item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl))) }
                     }
                 }
-
-                item { Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xl))) }
             }
         }
     }
@@ -195,7 +214,7 @@ private fun ConversationRow(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = conversation.participantInitials,
+                        text = conversation.participantName.take(1).uppercase(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -237,14 +256,8 @@ private fun ConversationRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (conversation.lastMessageIsMine) {
-                    ListMessageStatusTick(
-                        status = conversation.lastMessageStatus,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
                 Text(
-                    text = conversation.lastMessage,
+                    text = conversation.lastMessage ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (conversation.unreadCount > 0)
                         MaterialTheme.colorScheme.onBackground.copy(alpha = 0.80f)
@@ -264,7 +277,7 @@ private fun ConversationRow(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
         ) {
             Text(
-                text = conversation.timestamp,
+                text = conversation.lastMessageTimestamp ?: "",
                 style = MaterialTheme.typography.labelSmall,
                 color = if (conversation.unreadCount > 0)
                     MaterialTheme.colorScheme.primary
