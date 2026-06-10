@@ -96,47 +96,12 @@ private data class BottomNavItem(
     val icon: ImageVector
 )
 
-private data class ProfileMenuItem(
-    val titleRes: Int,
-    val icon: ImageVector
-)
-
-private data class ProfileMenuSection(
-    val titleRes: Int,
-    val items: List<ProfileMenuItem>
-)
-
 // Only the 4 regular tabs — AddItem is rendered separately as FAB
 private val regularNavItems = listOf(
     BottomNavItem(BottomNavTab.Home, R.string.nav_home, Icons.Default.Home),
     BottomNavItem(BottomNavTab.Favorites, R.string.nav_favorite, Icons.Default.Favorite),
     BottomNavItem(BottomNavTab.MyAds, R.string.nav_my_ads, Icons.Default.List),
     BottomNavItem(BottomNavTab.Profile, R.string.nav_profile, Icons.Default.Person)
-)
-
-private val profileMenuSections = listOf(
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_account,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_account_info, Icons.Default.Person)
-        )
-    ),
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_preferences,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_theme, Icons.Default.DarkMode),
-            ProfileMenuItem(R.string.menu_notifications, Icons.Default.Notifications),
-            ProfileMenuItem(R.string.menu_languages, Icons.Default.Language)
-        )
-    ),
-    ProfileMenuSection(
-        titleRes = R.string.profile_section_support,
-        items = listOf(
-            ProfileMenuItem(R.string.menu_privacy, Icons.Default.Security),
-            ProfileMenuItem(R.string.menu_help, Icons.Default.HelpOutline),
-            ProfileMenuItem(R.string.menu_sign_out, Icons.Default.Logout)
-        )
-    )
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -285,7 +250,7 @@ fun ProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MainTabScaffold(
+fun MainTabScaffold(
     selectedTab: BottomNavTab,
     titleRes: Int,
     onTabSelected: (BottomNavTab) -> Unit,
