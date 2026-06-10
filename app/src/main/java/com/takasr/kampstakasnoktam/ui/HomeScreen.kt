@@ -221,33 +221,6 @@ fun MyAdsScreen(
     }
 }
 
-@Composable
-fun ProfileScreen(
-    onTabSelected: (BottomNavTab) -> Unit,
-    onChatClick: () -> Unit,
-    onBasketClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel()
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    MainTabScaffold(
-        selectedTab = BottomNavTab.Profile,
-        titleRes = R.string.nav_profile,
-        onTabSelected = onTabSelected,
-        onChatClick = onChatClick,
-        onBasketClick = onBasketClick,
-        showTopBar = false,
-        modifier = modifier
-    ) {
-        when (val state = uiState) {
-            is ProfileUiState.Loading -> LoadingContent()
-            is ProfileUiState.Error -> EmptyTabContent(title = state.message)
-            is ProfileUiState.Success -> ProfileContent(user = state.user)
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTabScaffold(
@@ -444,99 +417,6 @@ private fun AddItemFab(onClick: () -> Unit) {
             contentDescription = stringResource(id = R.string.nav_add_item),
             modifier = Modifier.size(28.dp)
         )
-    }
-}
-
-@Composable
-private fun ProfileContent(
-    user: UserResponse,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                if (user.profileImageUrl != null) {
-                    AsyncImage(
-                        model = user.profileImageUrl,
-                        contentDescription = stringResource(id = R.string.nav_profile),
-                        modifier = Modifier
-                            .size(108.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(108.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = user.fullName.take(1).uppercase(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-
-                Text(
-                    text = user.fullName,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = user.email,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                )
-            }
-        }
-
-        items(profileMenuSections.size) { sectionIndex ->
-            val section = profileMenuSections[sectionIndex]
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(id = section.titleRes),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                    ) {
-                        section.items.forEach { menuItem ->
-                            ProfileMenuRow(
-                                icon = menuItem.icon,
-                                title = stringResource(id = menuItem.titleRes),
-                                onClick = { }
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 

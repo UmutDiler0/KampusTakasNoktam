@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,7 +23,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.takasr.kampstakasnoktam.R
+import com.takasr.kampstakasnoktam.base.UiState
+import coil.compose.AsyncImage
 
 @Composable
 fun ProfileScreen(
@@ -32,6 +34,7 @@ fun ProfileScreen(
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
     settingsViewModel: SettingsViewModel,
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     MainTabScaffold(
@@ -43,15 +46,21 @@ fun ProfileScreen(
         showTopBar = false,
         modifier = modifier
     ) {
-        ProfileContent(settingsViewModel = settingsViewModel)
+        ProfileContent(
+            settingsViewModel = settingsViewModel,
+            profileViewModel = profileViewModel
+        )
     }
 }
 
 @Composable
 fun ProfileContent(
     settingsViewModel: SettingsViewModel,
+    profileViewModel: ProfileViewModel,
     modifier: Modifier = Modifier
 ) {
+    val profileUiState by profileViewModel.uiState.collectAsState()
+    
     // States for toggles
     val isDarkThemePref by settingsViewModel.isDarkTheme.collectAsState()
     val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
@@ -83,30 +92,49 @@ fun ProfileContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = stringResource(id = R.string.nav_profile),
-                    modifier = Modifier
-                        .size(108.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
+            when (val state = profileUiState) {
+                is ProfileUiState.Success -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        AsyncImage(
+                            model = state.user.profileImageUrl,
+                            contentDescription = stringResource(id = R.string.nav_profile),
+                            modifier = Modifier
+                                .size(108.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                        )
 
-                Text(
-                    text = stringResource(id = R.string.profile_full_name),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = stringResource(id = R.string.profile_email),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
-                )
+                        Text(
+                            text = state.user.fullName,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = state.user.email,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
+                        )
+                    }
+                }
+                is ProfileUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is ProfileUiState.Error -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             }
         }
 
