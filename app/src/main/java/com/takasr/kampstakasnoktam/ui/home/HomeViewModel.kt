@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.home
 
 import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.base.BaseViewModel

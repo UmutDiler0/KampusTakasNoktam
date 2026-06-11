@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.basket
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.base.UiState
+import com.takasr.kampstakasnoktam.data.model.Advertisement
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +121,7 @@ fun BasketScreen(
 
 @Composable
 fun BasketItemRow(
-    item: HomeAdItem,
+    item: Advertisement,
     onRemoveClick: () -> Unit
 ) {
     Card(
@@ -152,7 +153,7 @@ fun BasketItemRow(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${item.price} TL",
+                    text = "${item.formattedPrice} TL",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -180,7 +181,7 @@ fun BasketItemRow(
 
 @Composable
 fun SuggestionCard(
-    item: HomeAdItem,
+    item: Advertisement,
     onAddClick: () -> Unit
 ) {
     Card(
@@ -208,7 +209,7 @@ fun SuggestionCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${item.price} TL",
+                    text = "${item.formattedPrice} TL",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold

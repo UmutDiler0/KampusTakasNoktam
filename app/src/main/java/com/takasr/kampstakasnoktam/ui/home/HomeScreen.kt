@@ -1,9 +1,8 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.home
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,17 +28,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Badge
@@ -75,12 +68,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.takasr.kampstakasnoktam.data.network.UserResponse
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.takasr.kampstakasnoktam.data.model.Advertisement
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.base.UiState
+import com.takasr.kampstakasnoktam.ui.basket.BasketViewModel
 
 enum class BottomNavTab {
     Home,
@@ -421,43 +415,9 @@ private fun AddItemFab(onClick: () -> Unit) {
 }
 
 @Composable
-private fun ProfileMenuRow(
-    icon: ImageVector,
-    title: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Icon(
-            imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-    }
-}
-
-@Composable
 private fun HomeContent(
     uiData: HomeUiData,
-    ads: List<HomeAdItem>,
+    ads: List<Advertisement>,
     emptyStateText: String,
     showSearchAndFilter: Boolean,
     onQueryChanged: (String) -> Unit,
@@ -534,7 +494,7 @@ private fun HomeContent(
 
 @Composable
 private fun HomeAdCard(
-    item: HomeAdItem,
+    item: Advertisement,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onAddToBasketClick: () -> Unit,
@@ -593,7 +553,7 @@ private fun HomeAdCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${item.price} TL",
+                    text = "${item.formattedPrice} TL",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -649,7 +609,7 @@ private fun EmptyTabContent(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
     }
 }

@@ -1,6 +1,6 @@
 package com.takasr.kampstakasnoktam.data
 
-import com.takasr.kampstakasnoktam.ui.HomeAdItem
+import com.takasr.kampstakasnoktam.data.model.Advertisement
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,10 +9,10 @@ import javax.inject.Singleton
 
 @Singleton
 class BasketRepository @Inject constructor() {
-    private val _basketItems = MutableStateFlow<List<HomeAdItem>>(emptyList())
-    val basketItems: StateFlow<List<HomeAdItem>> = _basketItems.asStateFlow()
+    private val _basketItems = MutableStateFlow<List<Advertisement>>(emptyList())
+    val basketItems: StateFlow<List<Advertisement>> = _basketItems.asStateFlow()
 
-    fun addToBasket(item: HomeAdItem) {
+    fun addToBasket(item: Advertisement) {
         if (!_basketItems.value.any { it.id == item.id }) {
             _basketItems.value = _basketItems.value + item
         }

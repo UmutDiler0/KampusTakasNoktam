@@ -1,9 +1,7 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.chat
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,10 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -56,7 +50,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.takasr.kampstakasnoktam.data.network.ChatConversation
+import com.takasr.kampstakasnoktam.data.model.Conversation
 import com.takasr.kampstakasnoktam.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,7 +173,7 @@ fun ChatScreen(
 
 @Composable
 private fun ConversationRow(
-    conversation: ChatConversation,
+    conversation: Conversation,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -357,56 +351,3 @@ private fun ChatEmptyState(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun ListMessageStatusTick(status: MessageStatus, modifier: Modifier = Modifier) {
-    when (status) {
-        MessageStatus.SENT -> ListSingleCheckmark(modifier)
-        MessageStatus.DELIVERED -> ListDoubleCheckmark(isRead = false, modifier)
-        MessageStatus.READ -> ListDoubleCheckmark(isRead = true, modifier)
-    }
-}
-
-@Composable
-private fun ListSingleCheckmark(modifier: Modifier = Modifier) {
-    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-    Canvas(modifier = modifier) {
-        val path = Path().apply {
-            moveTo(4.dp.toPx(), 8.dp.toPx())
-            lineTo(7.dp.toPx(), 11.dp.toPx())
-            lineTo(12.dp.toPx(), 5.dp.toPx())
-        }
-        drawPath(
-            path = path,
-            color = color,
-            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-    }
-}
-
-@Composable
-private fun ListDoubleCheckmark(isRead: Boolean, modifier: Modifier = Modifier) {
-    val color = if (isRead) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-    Canvas(modifier = modifier) {
-        val path1 = Path().apply {
-            moveTo(2.dp.toPx(), 8.dp.toPx())
-            lineTo(5.dp.toPx(), 11.dp.toPx())
-            lineTo(10.dp.toPx(), 5.dp.toPx())
-        }
-        drawPath(
-            path = path1,
-            color = color,
-            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-        
-        val path2 = Path().apply {
-            moveTo(6.dp.toPx(), 8.dp.toPx())
-            lineTo(9.dp.toPx(), 11.dp.toPx())
-            lineTo(14.dp.toPx(), 5.dp.toPx())
-        }
-        drawPath(
-            path = path2,
-            color = color,
-            style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-    }
-}

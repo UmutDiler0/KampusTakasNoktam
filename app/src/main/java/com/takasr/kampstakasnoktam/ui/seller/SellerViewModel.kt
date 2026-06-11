@@ -1,19 +1,27 @@
 package com.takasr.kampstakasnoktam.ui.seller
 
+import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.base.BaseViewModel
+import com.takasr.kampstakasnoktam.data.model.toUser
+import com.takasr.kampstakasnoktam.data.network.ApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SellerViewModel @Inject constructor() : BaseViewModel<SellerUiData>(SellerUiData.mock(0)) {
+class SellerViewModel @Inject constructor(
+    private val apiService: ApiService
+) : BaseViewModel<SellerUiData>(SellerUiData.empty()) {
 
-    /**
-     * Load seller data for the given [sellerId].
-     * In a real app this would call a repository which fetches from network/DB.
-     */
-    fun loadSeller(sellerId: Int) {
+    fun loadSeller(sellerId: String) {
         setLoading()
-        // TODO: replace with real repository call
-        setSuccess(SellerUiData.mock(sellerId))
+        viewModelScope.launch {
+            try {
+                val user = apiService.getSellerProfile(sellerId).toUser()
+                setSuccess(SellerUiData(user = user))
+            } catch (e: Exception) {
+                setError(e.message ?: "Kullanıcı bilgileri alınamadı")
+            }
+        }
     }
 }

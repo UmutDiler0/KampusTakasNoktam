@@ -19,7 +19,10 @@ data class UserResponse(
     val email: String,
     val university: String?,
     @SerializedName("profile_image_url") val profileImageUrl: String?,
-    val rating: Float,
-    @SerializedName("total_sales") val totalSales: Int,
-    @SerializedName("member_since") val memberSince: String
+    val phone: String? = null,
+    val rating: Float = 0f,
+    @SerializedName("total_sales") val totalSales: Int = 0,
+    @SerializedName("total_reviews") val totalReviews: Int = 0,
+    @SerializedName("member_since") val memberSince: String,
+    @SerializedName("is_email_verified") val isEmailVerified: Boolean = false
 )

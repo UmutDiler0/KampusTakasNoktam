@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.itemdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

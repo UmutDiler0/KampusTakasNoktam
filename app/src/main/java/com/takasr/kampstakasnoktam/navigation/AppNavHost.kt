@@ -16,21 +16,21 @@ import com.takasr.kampstakasnoktam.onboarding.OnboardingRoute
 import com.takasr.kampstakasnoktam.splash.SplashNavigationTarget
 import com.takasr.kampstakasnoktam.splash.SplashScreen
 import com.takasr.kampstakasnoktam.splash.SplashViewModel
-import com.takasr.kampstakasnoktam.ui.AddItemScreen
-import com.takasr.kampstakasnoktam.ui.BasketScreen
-import com.takasr.kampstakasnoktam.ui.BasketViewModel
-import com.takasr.kampstakasnoktam.ui.BottomNavTab
-import com.takasr.kampstakasnoktam.ui.ChatDetailScreen
-import com.takasr.kampstakasnoktam.ui.ChatScreen
-import com.takasr.kampstakasnoktam.ui.FavoritesScreen
-import com.takasr.kampstakasnoktam.ui.HomeScreen
-import com.takasr.kampstakasnoktam.ui.HomeViewModel
-import com.takasr.kampstakasnoktam.ui.ItemDetailScreen
-import com.takasr.kampstakasnoktam.ui.ItemDetailViewModel
-import com.takasr.kampstakasnoktam.ui.HomeUiData
-import com.takasr.kampstakasnoktam.ui.MyAdsScreen
-import com.takasr.kampstakasnoktam.ui.ProfileScreen
-import com.takasr.kampstakasnoktam.ui.SettingsViewModel
+import com.takasr.kampstakasnoktam.ui.home.AddItemScreen
+import com.takasr.kampstakasnoktam.ui.basket.BasketScreen
+import com.takasr.kampstakasnoktam.ui.basket.BasketViewModel
+import com.takasr.kampstakasnoktam.ui.home.BottomNavTab
+import com.takasr.kampstakasnoktam.ui.chat.ChatDetailScreen
+import com.takasr.kampstakasnoktam.ui.chat.ChatScreen
+import com.takasr.kampstakasnoktam.ui.home.FavoritesScreen
+import com.takasr.kampstakasnoktam.ui.home.HomeScreen
+import com.takasr.kampstakasnoktam.ui.home.HomeViewModel
+import com.takasr.kampstakasnoktam.ui.itemdetail.ItemDetailScreen
+import com.takasr.kampstakasnoktam.ui.itemdetail.ItemDetailViewModel
+import com.takasr.kampstakasnoktam.ui.home.HomeUiData
+import com.takasr.kampstakasnoktam.ui.home.MyAdsScreen
+import com.takasr.kampstakasnoktam.ui.profile.ProfileScreen
+import com.takasr.kampstakasnoktam.ui.settings.SettingsViewModel
 import com.takasr.kampstakasnoktam.ui.seller.SellerScreen
 import com.takasr.kampstakasnoktam.base.UiState
 import kotlinx.coroutines.flow.collectLatest
@@ -220,10 +220,10 @@ fun AppNavHost(
         composable(
             route = AppDestination.SellerProfile.route,
             arguments = listOf(
-                navArgument("sellerId") { type = NavType.IntType }
+                navArgument("sellerId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val sellerId = backStackEntry.arguments?.getInt("sellerId") ?: return@composable
+            val sellerId = backStackEntry.arguments?.getString("sellerId") ?: return@composable
             SellerScreen(
                 sellerId = sellerId,
                 onBackClick = { navController.popBackStack() },

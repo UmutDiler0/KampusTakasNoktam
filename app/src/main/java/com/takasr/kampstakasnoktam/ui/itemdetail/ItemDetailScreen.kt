@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.itemdetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,12 +28,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
+import com.takasr.kampstakasnoktam.data.model.Advertisement
 import kotlinx.coroutines.launch
 
 // Data model for detailed item information
 data class ItemDetailData(
     val id: Int,
-    val sellerId: Int,
+    val sellerId: String,
     val title: String,
     val price: String,
     val sellerName: String,
@@ -48,10 +49,10 @@ data class ItemDetailData(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemDetailScreen(
-    item: HomeAdItem?,
+    item: Advertisement?,
     onBackClick: () -> Unit = {},
     onAddToBasket: (Int) -> Unit = {},
-    onSellerClick: (sellerId: Int) -> Unit = {},
+    onSellerClick: (sellerId: String) -> Unit = {},
     onSendMessageClick: (targetUserId: String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -119,7 +120,7 @@ fun ItemDetailScreen(
     }
 }
 
-private fun HomeAdItem.toItemDetailData(): ItemDetailData {
+private fun Advertisement.toItemDetailData(): ItemDetailData {
     val priceText = if (price % 1.0 == 0.0) {
         "${price.toLong()} TL"
     } else {
@@ -132,14 +133,14 @@ private fun HomeAdItem.toItemDetailData(): ItemDetailData {
 
     return ItemDetailData(
         id = id,
-        sellerId = 0,
+        sellerId = sellerId,
         title = title,
         price = priceText,
-        sellerName = "Satıcı",
+        sellerName = sellerName,
         location = location,
         imageUrls = if (urls.isNotEmpty()) urls else listOf("https://picsum.photos/seed/${id}/600/400"),
         description = description,
-        sellerDescription = "Satıcı detayları henüz servis tarafından sağlanmıyor.",
+        sellerDescription = sellerName,
         itemInformation = buildString {
             append("Condition: $condition\n")
             append("Category: $category\n")
@@ -246,7 +247,7 @@ private fun PriceAndBasketSection(
 @Composable
 private fun ItemDetailsTabs(
     itemDetail: ItemDetailData,
-    onSellerClick: (Int) -> Unit,
+    onSellerClick: (String) -> Unit,
     onSendMessageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -307,7 +308,7 @@ private fun ItemDescriptionTab(description: String) {
 @Composable
 private fun SellerDescriptionTab(
     itemDetail: ItemDetailData,
-    onSellerClick: (Int) -> Unit,
+    onSellerClick: (String) -> Unit,
     onSendMessageClick: (String) -> Unit
 ) {
     Column(

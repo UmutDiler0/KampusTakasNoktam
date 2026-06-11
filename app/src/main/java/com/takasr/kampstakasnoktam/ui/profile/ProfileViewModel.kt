@@ -1,10 +1,11 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.data.AuthRepository
+import com.takasr.kampstakasnoktam.data.model.User
+import com.takasr.kampstakasnoktam.data.model.toUser
 import com.takasr.kampstakasnoktam.data.network.ApiService
-import com.takasr.kampstakasnoktam.data.network.UserResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 sealed class ProfileUiState {
     object Loading : ProfileUiState()
-    data class Success(val user: UserResponse) : ProfileUiState()
+    data class Success(val user: User) : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
 }
 
@@ -34,7 +35,7 @@ class ProfileViewModel @Inject constructor(
     private fun fetchProfile() {
         viewModelScope.launch {
             try {
-                val user = apiService.getMe()
+                val user = apiService.getMe().toUser()
                 _uiState.value = ProfileUiState.Success(user)
             } catch (e: Exception) {
                 _uiState.value = ProfileUiState.Error(e.message ?: "Profil bilgileri alınamadı")

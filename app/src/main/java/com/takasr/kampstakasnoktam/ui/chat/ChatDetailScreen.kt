@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -76,8 +76,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
-import com.takasr.kampstakasnoktam.data.network.ChatConversation
-import com.takasr.kampstakasnoktam.data.network.ChatMessage
+import com.takasr.kampstakasnoktam.data.model.Conversation
+import com.takasr.kampstakasnoktam.data.model.Message
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,8 +124,8 @@ fun ChatDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChatDetailContent(
-    conversation: ChatConversation,
-    messages: List<ChatMessage>,
+    conversation: Conversation,
+    messages: List<Message>,
     currentUserId: String?,
     onBackClick: () -> Unit,
     onSendMessage: (String) -> Unit,
@@ -280,7 +280,7 @@ private fun ChatDetailContent(
 
 @Composable
 private fun MessageBubble(
-    message: ChatMessage,
+    message: Message,
     currentUserId: String?,
     modifier: Modifier = Modifier
 ) {

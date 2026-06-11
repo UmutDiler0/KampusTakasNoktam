@@ -22,11 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,12 +54,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.base.UiState
+import com.takasr.kampstakasnoktam.data.model.Advertisement
+import com.takasr.kampstakasnoktam.data.model.User
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SellerScreen(
-    sellerId: Int,
+    sellerId: String,
     onBackClick: () -> Unit,
     onAdClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -146,17 +146,17 @@ private fun SellerContent(
     ) {
         // ── Profile Hero Card ────────────────────────────────────────────────
         item {
-            SellerProfileHero(seller = data.seller)
+            SellerProfileHero(seller = data.user)
         }
 
         // ── Contact & Verification ───────────────────────────────────────────
         item {
-            SellerContactSection(seller = data.seller)
+            SellerContactSection(seller = data.user)
         }
 
         // ── Rating summary ───────────────────────────────────────────────────
         item {
-            SellerRatingSummary(seller = data.seller)
+            SellerRatingSummary(seller = data.user)
         }
 
         // ── Active Ads ───────────────────────────────────────────────────────
@@ -164,12 +164,12 @@ private fun SellerContent(
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xs)))
             SectionTitle(
                 title = stringResource(R.string.seller_section_ads),
-                badge = "${data.ads.size}"
+                badge = "${data.user.ads.size}"
             )
         }
 
         item {
-            SellerAdsRow(ads = data.ads, onAdClick = onAdClick)
+            SellerAdsRow(ads = data.user.ads, onAdClick = onAdClick)
         }
 
         // ── Reviews ──────────────────────────────────────────────────────────
@@ -193,7 +193,7 @@ private fun SellerContent(
 
 @Composable
 private fun SellerProfileHero(
-    seller: SellerProfile,
+    seller: User,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -288,7 +288,7 @@ private fun SellerProfileHero(
                     modifier = Modifier.size(dimensionResource(R.dimen.seller_section_icon_size))
                 )
                 Text(
-                    text = seller.university,
+                    text = seller.university.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f)
                 )
@@ -308,7 +308,7 @@ private fun SellerProfileHero(
 
 @Composable
 private fun SellerContactSection(
-    seller: SellerProfile,
+    seller: User,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -336,29 +336,6 @@ private fun SellerContactSection(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
 
-            // Email row with verified badge
-            ContactRow(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Email,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(dimensionResource(R.dimen.seller_contact_icon_size))
-                    )
-                },
-                label = stringResource(R.string.seller_label_email),
-                value = seller.email,
-                trailing = {
-                    if (seller.isEmailVerified) {
-                        VerifiedBadge()
-                    } else {
-                        UnverifiedBadge()
-                    }
-                }
-            )
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-
             // Phone row
             ContactRow(
                 icon = {
@@ -370,7 +347,7 @@ private fun SellerContactSection(
                     )
                 },
                 label = stringResource(R.string.seller_label_phone),
-                value = seller.phone
+                value = seller.phone ?: stringResource(R.string.seller_phone_not_available)
             )
         }
     }
@@ -407,60 +384,12 @@ private fun ContactRow(
     }
 }
 
-@Composable
-private fun VerifiedBadge() {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-    ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(R.dimen.spacing_md),
-                vertical = dimensionResource(R.dimen.spacing_xs)
-            ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_xs))
-        ) {
-            Icon(
-                imageVector = Icons.Default.VerifiedUser,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(dimensionResource(R.dimen.seller_verified_icon_size))
-            )
-            Text(
-                text = stringResource(R.string.seller_verified),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Composable
-private fun UnverifiedBadge() {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.error.copy(alpha = 0.10f)
-    ) {
-        Text(
-            text = stringResource(R.string.seller_not_verified),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(R.dimen.spacing_md),
-                vertical = dimensionResource(R.dimen.spacing_xs)
-            )
-        )
-    }
-}
 
 // ─── Rating Summary ───────────────────────────────────────────────────────────
 
 @Composable
 private fun SellerRatingSummary(
-    seller: SellerProfile,
+    seller: User,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -553,7 +482,7 @@ private fun VerticalSeparator() {
 
 @Composable
 private fun SellerAdsRow(
-    ads: List<SellerAd>,
+    ads: List<Advertisement>,
     onAdClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -585,7 +514,7 @@ private fun SellerAdsRow(
 
 @Composable
 private fun SellerAdCard(
-    ad: SellerAd,
+    ad: Advertisement,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -622,7 +551,7 @@ private fun SellerAdCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = ad.price,
+                text = "${ad.formattedPrice} TL",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

@@ -74,6 +74,7 @@
     <string name="seller_contact_title">İletişim Bilgileri</string>
     <string name="seller_label_email">E-posta</string>
     <string name="seller_label_phone">Telefon</string>
+    <string name="seller_phone_not_available">Telefon mevcut değil</string>
     <string name="seller_member_since">Üye: %1$s</string>
     <string name="seller_stat_rating">Puan</string>
     <string name="seller_stat_sales">Satış</string>

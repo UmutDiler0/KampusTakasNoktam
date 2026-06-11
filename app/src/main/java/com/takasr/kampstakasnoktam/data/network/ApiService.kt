@@ -1,7 +1,7 @@
 package com.takasr.kampstakasnoktam.data.network
 
 import com.takasr.kampstakasnoktam.data.network.AdCreateRequest
-import com.takasr.kampstakasnoktam.ui.HomeAdItem
+import com.takasr.kampstakasnoktam.data.network.AdvertisementResponse
 import kotlin.jvm.JvmSuppressWildcards
 import okhttp3.MultipartBody
 import retrofit2.http.*
@@ -25,29 +25,32 @@ interface ApiService {
         @Query("min_price") minPrice: Double? = null,
         @Query("max_price") maxPrice: Double? = null,
         @Query("is_swap") isSwap: Boolean? = null
-    ): List<HomeAdItem>
+    ): List<AdvertisementResponse>
 
     @POST("ads")
-    suspend fun createAd(@Body request: AdCreateRequest): HomeAdItem
+    suspend fun createAd(@Body request: AdCreateRequest): AdvertisementResponse
 
     @Multipart
     @POST("ads/{ad_id}/images")
     suspend fun uploadAdImages(
         @Path("ad_id") adId: Int,
         @Part files: List<MultipartBody.Part>
-    ): HomeAdItem
+    ): AdvertisementResponse
 
     @PUT("ads/{ad_id}")
     suspend fun updateAd(
         @Path("ad_id") adId: Int,
         @Body updates: Map<String, @JvmSuppressWildcards Any>
-    ): HomeAdItem
+    ): AdvertisementResponse
 
     @DELETE("ads/{ad_id}")
     suspend fun deleteAd(@Path("ad_id") adId: Int)
 
     @GET("users/me")
     suspend fun getMe(): UserResponse
+
+    @GET("users/{user_id}")
+    suspend fun getSellerProfile(@Path("user_id") userId: String): SellerProfileResponse
 
     // --- Chat Endpoints ---
     @GET("chat/conversations")

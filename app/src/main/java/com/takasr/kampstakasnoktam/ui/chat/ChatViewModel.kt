@@ -1,9 +1,10 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.data.ChatRepository
-import com.takasr.kampstakasnoktam.data.network.ChatConversation
+import com.takasr.kampstakasnoktam.data.model.Conversation
+import com.takasr.kampstakasnoktam.data.model.toConversation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 sealed class ChatUiState {
     object Loading : ChatUiState()
-    data class Success(val conversations: List<ChatConversation>) : ChatUiState()
+    data class Success(val conversations: List<Conversation>) : ChatUiState()
     data class Error(val message: String) : ChatUiState()
 }
 
@@ -33,7 +34,7 @@ class ChatViewModel @Inject constructor(
         _uiState.value = ChatUiState.Loading
         viewModelScope.launch {
             chatRepository.getConversations().onSuccess { conversations ->
-                _uiState.value = ChatUiState.Success(conversations)
+                _uiState.value = ChatUiState.Success(conversations.map { it.toConversation() })
             }.onFailure { error ->
                 _uiState.value = ChatUiState.Error(error.message ?: "Mesajlar yüklenemedi")
             }

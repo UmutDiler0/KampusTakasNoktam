@@ -1,4 +1,4 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.profile
 
 import android.Manifest
 import android.os.Build
@@ -26,7 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.base.UiState
+import com.takasr.kampstakasnoktam.ui.settings.SettingsViewModel
 import coil.compose.AsyncImage
+import com.takasr.kampstakasnoktam.ui.home.BottomNavTab
+import com.takasr.kampstakasnoktam.ui.home.MainTabScaffold
 
 @Composable
 fun ProfileScreen(
@@ -119,7 +122,7 @@ fun ProfileContent(
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            text = state.user.email,
+                            text = state.user.email ?: "",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                         )

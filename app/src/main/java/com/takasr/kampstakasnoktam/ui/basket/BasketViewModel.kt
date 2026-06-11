@@ -1,17 +1,19 @@
-package com.takasr.kampstakasnoktam.ui
+package com.takasr.kampstakasnoktam.ui.basket
 
 import androidx.lifecycle.viewModelScope
 import com.takasr.kampstakasnoktam.base.BaseViewModel
 import com.takasr.kampstakasnoktam.base.UiData
 import com.takasr.kampstakasnoktam.data.BasketRepository
+import com.takasr.kampstakasnoktam.data.model.Advertisement
+import com.takasr.kampstakasnoktam.ui.home.HomeUiData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class BasketUiData(
-    val basketItems: List<HomeAdItem> = emptyList(),
-    val suggestions: List<HomeAdItem> = emptyList(),
+    val basketItems: List<Advertisement> = emptyList(),
+    val suggestions: List<Advertisement> = emptyList(),
     val totalPrice: Double = 0.0
 ) : UiData
 
@@ -32,7 +34,7 @@ class BasketViewModel @Inject constructor(
         }
     }
 
-    private fun updateSuggestions(basketItems: List<HomeAdItem>) {
+    private fun updateSuggestions(basketItems: List<Advertisement>) {
         // In a real app, this would come from a repository of all items.
         // For now, I'll use the hardcoded items from HomeUiData.
         val allAds = HomeUiData.Initial.ads
@@ -54,7 +56,7 @@ class BasketViewModel @Inject constructor(
         basketRepository.removeFromBasket(itemId)
     }
 
-    fun onAddToBasket(item: HomeAdItem) {
+    fun onAddToBasket(item: Advertisement) {
         basketRepository.addToBasket(item)
     }
 }
