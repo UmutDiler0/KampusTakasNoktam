@@ -176,26 +176,6 @@ fun FavoritesScreen(
         }
     }
 }
-
-@Composable
-fun AddItemScreen(
-    onTabSelected: (BottomNavTab) -> Unit,
-    onChatClick: () -> Unit,
-    onBasketClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    MainTabScaffold(
-        selectedTab = BottomNavTab.AddItem,
-        titleRes = R.string.nav_add_item,
-        onTabSelected = onTabSelected,
-        onChatClick = onChatClick,
-        onBasketClick = onBasketClick,
-        modifier = modifier
-    ) {
-        EmptyTabContent(title = stringResource(id = R.string.nav_add_item))
-    }
-}
-
 @Composable
 fun MyAdsScreen(
     onTabSelected: (BottomNavTab) -> Unit,

@@ -8,11 +8,11 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @POST("auth/register")
+    @POST("auth/register/")
     suspend fun register(@Body request: RegisterRequest): UserResponse
 
     @FormUrlEncoded
-    @POST("auth/login")
+    @POST("auth/login/")
     suspend fun login(
         @Field("username") email: String,
         @Field("password") pass: String
@@ -27,23 +27,23 @@ interface ApiService {
         @Query("is_swap") isSwap: Boolean? = null
     ): List<AdvertisementResponse>
 
-    @POST("ads")
+    @POST("ads/")
     suspend fun createAd(@Body request: AdCreateRequest): AdvertisementResponse
 
     @Multipart
-    @POST("ads/{ad_id}/images")
+    @POST("ads/{ad_id}/images/")
     suspend fun uploadAdImages(
         @Path("ad_id") adId: Int,
         @Part files: List<MultipartBody.Part>
     ): AdvertisementResponse
 
-    @PUT("ads/{ad_id}")
+    @PUT("ads/{ad_id}/")
     suspend fun updateAd(
         @Path("ad_id") adId: Int,
         @Body updates: Map<String, @JvmSuppressWildcards Any>
     ): AdvertisementResponse
 
-    @DELETE("ads/{ad_id}")
+    @DELETE("ads/{ad_id}/")
     suspend fun deleteAd(@Path("ad_id") adId: Int)
 
     @GET("users/me")
@@ -59,9 +59,9 @@ interface ApiService {
     @GET("chat/conversations/{id}/messages")
     suspend fun getMessages(@Path("id") conversationId: Int): List<ChatMessage>
 
-    @POST("chat/conversations")
+    @POST("chat/conversations/")
     suspend fun startConversation(@Query("target_user_id") targetUserId: String): ChatConversation
 
-    @POST("chat/messages")
+    @POST("chat/messages/")
     suspend fun sendMessage(@Body request: SendMessageRequest): ChatMessage
 }

@@ -16,7 +16,7 @@ import com.takasr.kampstakasnoktam.onboarding.OnboardingRoute
 import com.takasr.kampstakasnoktam.splash.SplashNavigationTarget
 import com.takasr.kampstakasnoktam.splash.SplashScreen
 import com.takasr.kampstakasnoktam.splash.SplashViewModel
-import com.takasr.kampstakasnoktam.ui.home.AddItemScreen
+import com.takasr.kampstakasnoktam.ui.additem.AddItemScreen
 import com.takasr.kampstakasnoktam.ui.basket.BasketScreen
 import com.takasr.kampstakasnoktam.ui.basket.BasketViewModel
 import com.takasr.kampstakasnoktam.ui.home.BottomNavTab
@@ -128,9 +128,12 @@ fun AppNavHost(
 
         composable(route = AppDestination.AddItem.route) {
             AddItemScreen(
-                onTabSelected = navigateToMainTab,
-                onChatClick = { navController.navigate(AppDestination.Chat.route) },
-                onBasketClick = { navController.navigate(AppDestination.Basket.route) }
+                onBackClick = { navController.popBackStack() },
+                onSuccess = {
+                    navController.navigate(AppDestination.Home.route) {
+                        popUpTo(AppDestination.Home.route) { inclusive = true }
+                    }
+                }
             )
         }
 
