@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -22,16 +23,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.takasr.kampstakasnoktam.R
 import com.takasr.kampstakasnoktam.data.model.Advertisement
-import kotlinx.coroutines.launch
 
-// Data model for detailed item information
 data class ItemDetailData(
     val id: Int,
     val sellerId: String,
@@ -64,17 +62,16 @@ fun ItemDetailScreen(
     }
 
     val itemDetail = remember(item) { item.toItemDetailData() }
-
     var showFullScreenImage by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableStateOf(0) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(itemDetail.title) },
+                title = { Text(itemDetail.title, maxLines = 1) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
                     }
                 }
             )
@@ -84,9 +81,10 @@ fun ItemDetailScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            // Image Pager Section
+            // ── Fotoğraflar ──────────────────────────────────────────────────
             ImagePagerSection(
                 imageUrls = itemDetail.imageUrls,
                 onImageClick = { index ->
@@ -95,22 +93,35 @@ fun ItemDetailScreen(
                 }
             )
 
-            // Price and Add to Basket Section
+            // ── Fiyat & Sepet ────────────────────────────────────────────────
             PriceAndBasketSection(
                 price = itemDetail.price,
                 onAddToBasket = { onAddToBasket(item.id) }
             )
 
-            // Item Details Tabs
-            ItemDetailsTabs(
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            // ── Satıcı ───────────────────────────────────────────────────────
+            SellerSection(
                 itemDetail = itemDetail,
                 onSellerClick = onSellerClick,
                 onSendMessageClick = onSendMessageClick
             )
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            // ── Açıklama ─────────────────────────────────────────────────────
+            DescriptionSection(description = itemDetail.description)
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            // ── Ürün Bilgisi ─────────────────────────────────────────────────
+            InformationSection(itemInformation = itemDetail.itemInformation)
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 
-    // Full Screen Image Dialog
     if (showFullScreenImage) {
         FullScreenImageDialog(
             imageUrls = itemDetail.imageUrls,
@@ -121,11 +132,8 @@ fun ItemDetailScreen(
 }
 
 private fun Advertisement.toItemDetailData(): ItemDetailData {
-    val priceText = if (price % 1.0 == 0.0) {
-        "${price.toLong()} TL"
-    } else {
-        String.format("%.2f TL", price)
-    }
+    val priceText = if (price % 1.0 == 0.0) "${price.toLong()} TL"
+    else String.format("%.2f TL", price)
 
     val urls = imageUrls.map { url ->
         if (url.startsWith("http")) url else "https://kampustakasnoktam.keserbaros.com$url"
@@ -142,14 +150,16 @@ private fun Advertisement.toItemDetailData(): ItemDetailData {
         description = description,
         sellerDescription = sellerName,
         itemInformation = buildString {
-            append("Condition: $condition\n")
-            append("Category: $category\n")
-            append("Swap: ${if (isSwap) "Yes" else "No"}\n")
-            append("Created At: $createdAt\n")
-            append("Active: ${if (isActive) "Yes" else "No"}")
+            append("Durum: $condition\n")
+            append("Kategori: $category\n")
+            append("Takas: ${if (isSwap) "Evet" else "Hayır"}\n")
+            append("Konum: $location\n")
+            append("Tarih: $createdAt")
         }
     )
 }
+
+// ─── Image Pager ──────────────────────────────────────────────────────────────
 
 @Composable
 private fun ImagePagerSection(
@@ -162,36 +172,26 @@ private fun ImagePagerSection(
     Box(modifier = modifier.fillMaxWidth()) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
+            modifier = Modifier.fillMaxWidth().height(300.dp)
         ) { page ->
             AsyncImage(
                 model = imageUrls[page],
-                contentDescription = "Item image ${page + 1}",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { onImageClick(page) },
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().clickable { onImageClick(page) },
                 contentScale = ContentScale.Crop
             )
         }
 
-        // Custom Page Indicator
         if (imageUrls.size > 1) {
             Row(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 repeat(imageUrls.size) { index ->
                     val isSelected = pagerState.currentPage == index
                     Box(
                         modifier = Modifier
-                            .size(
-                                width = if (isSelected) 24.dp else 8.dp,
-                                height = 8.dp
-                            )
+                            .size(width = if (isSelected) 20.dp else 6.dp, height = 6.dp)
                             .clip(CircleShape)
                             .background(
                                 if (isSelected) MaterialTheme.colorScheme.primary
@@ -204,6 +204,8 @@ private fun ImagePagerSection(
     }
 }
 
+// ─── Price & Basket ───────────────────────────────────────────────────────────
+
 @Composable
 private fun PriceAndBasketSection(
     price: String,
@@ -211,9 +213,7 @@ private fun PriceAndBasketSection(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -223,144 +223,55 @@ private fun PriceAndBasketSection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
-
-        Button(
-            onClick = onAddToBasket,
-            modifier = Modifier.height(48.dp),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Icon(
-                Icons.Default.ShoppingCart,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.action_add_basket),
-                style = MaterialTheme.typography.labelLarge
-            )
+        Button(onClick = onAddToBasket, shape = RoundedCornerShape(8.dp)) {
+            Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.action_add_basket))
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ─── Seller Section ───────────────────────────────────────────────────────────
+
 @Composable
-private fun ItemDetailsTabs(
+private fun SellerSection(
     itemDetail: ItemDetailData,
     onSellerClick: (String) -> Unit,
     onSendMessageClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
-            Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 },
-                text = { Text("Description") }
-            )
-            Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
-                text = { Text("Seller") }
-            )
-            Tab(
-                selected = selectedTabIndex == 2,
-                onClick = { selectedTabIndex = 2 },
-                text = { Text("Information") }
-            )
-        }
-
-        when (selectedTabIndex) {
-            0 -> ItemDescriptionTab(itemDetail.description)
-            1 -> SellerDescriptionTab(
-                itemDetail = itemDetail,
-                onSellerClick = onSellerClick,
-                onSendMessageClick = onSendMessageClick
-            )
-            2 -> ItemInformationTab(itemDetail.itemInformation)
-        }
-    }
-}
-
-@Composable
-private fun ItemDescriptionTab(description: String) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "Item Description",
+            text = "Satıcı",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight = FontWeight.SemiBold
         )
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyLarge,
-            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
-        )
-    }
-}
 
-@Composable
-private fun SellerDescriptionTab(
-    itemDetail: ItemDetailData,
-    onSellerClick: (String) -> Unit,
-    onSendMessageClick: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "About the Seller",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-            
-            TextButton(onClick = { onSendMessageClick(itemDetail.sellerId.toString()) }) {
-                Text("Send Message")
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Clickable seller header ─ navigates to SellerScreen
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onSellerClick(itemDetail.sellerId) },
-            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().clickable { onSellerClick(itemDetail.sellerId) },
+            shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f)
             )
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
+                    modifier = Modifier.size(44.dp).clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = itemDetail.sellerName.first().toString(),
+                        text = itemDetail.sellerName.firstOrNull()?.toString() ?: "?",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
@@ -375,70 +286,76 @@ private fun SellerDescriptionTab(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Satıcı Profili",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Icon(Icons.Default.ChevronRight, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary)
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = itemDetail.sellerDescription,
-            style = MaterialTheme.typography.bodyLarge,
-            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.2f
-        )
+        Button(
+            onClick = { onSendMessageClick(itemDetail.sellerId) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Icon(Icons.Default.ChatBubbleOutline, contentDescription = null,
+                modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Mesaj Gönder", fontWeight = FontWeight.SemiBold)
+        }
     }
 }
+
+// ─── Description Section ──────────────────────────────────────────────────────
 
 @Composable
-private fun ItemInformationTab(itemInformation: String) {
+private fun DescriptionSection(description: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        Text("Açıklama", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
-            text = "Item Information",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            text = description,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.3f
         )
+    }
+}
 
-        // Parse the item information and display as key-value pairs
-        val infoLines = itemInformation.lines()
-        infoLines.forEach { line ->
+// ─── Information Section ──────────────────────────────────────────────────────
+
+@Composable
+private fun InformationSection(itemInformation: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("Ürün Bilgisi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        itemInformation.lines().forEach { line ->
             if (line.contains(":")) {
-                val (key, value) = line.split(":", limit = 2)
+                val parts = line.split(":", limit = 2)
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "$key:",
+                        text = parts[0] + ":",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.weight(0.4f)
+                        modifier = Modifier.weight(0.35f)
                     )
                     Text(
-                        text = value.trim(),
+                        text = parts[1].trim(),
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(0.6f)
+                        modifier = Modifier.weight(0.65f)
                     )
                 }
-            } else if (line.isNotBlank()) {
-                Text(
-                    text = line,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
             }
         }
     }
 }
+
+// ─── Full Screen Image ────────────────────────────────────────────────────────
 
 @Composable
 private fun FullScreenImageDialog(
@@ -446,76 +363,38 @@ private fun FullScreenImageDialog(
     initialIndex: Int,
     onDismiss: () -> Unit
 ) {
-    val pagerState = rememberPagerState(
-        initialPage = initialIndex,
-        pageCount = { imageUrls.size }
-    )
+    val pagerState = rememberPagerState(initialPage = initialIndex, pageCount = { imageUrls.size })
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true
-        )
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true, dismissOnClickOutside = true)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                 AsyncImage(
-                    model = imageUrls[page],
-                    contentDescription = "Full screen image ${page + 1}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
+                    model = imageUrls[page], contentDescription = null,
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit
                 )
             }
-
-            // Close button
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .size(48.dp)
-                    .background(
-                        Color.Black.copy(alpha = 0.5f),
-                        shape = CircleShape
-                    )
+                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(48.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
             ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Close",
-                    tint = Color.White
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Color.White)
             }
-
-            // Page indicator for full screen
             if (imageUrls.size > 1) {
                 Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 32.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     repeat(imageUrls.size) { index ->
                         val isSelected = pagerState.currentPage == index
                         Box(
                             modifier = Modifier
-                                .size(
-                                    width = if (isSelected) 24.dp else 8.dp,
-                                    height = 8.dp
-                                )
+                                .size(width = if (isSelected) 20.dp else 6.dp, height = 6.dp)
                                 .clip(CircleShape)
-                                .background(
-                                    if (isSelected) Color.White
-                                    else Color.White.copy(alpha = 0.5f)
-                                )
+                                .background(if (isSelected) Color.White else Color.White.copy(alpha = 0.5f))
                         )
                     }
                 }

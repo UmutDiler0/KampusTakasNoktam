@@ -59,9 +59,9 @@ interface ApiService {
     @GET("chat/conversations/{id}/messages")
     suspend fun getMessages(@Path("id") conversationId: Int): List<ChatMessage>
 
-    @POST("chat/conversations/")
+    @POST("chat/conversations")
     suspend fun startConversation(@Query("target_user_id") targetUserId: String): ChatConversation
 
-    @POST("chat/messages/")
+    @POST("chat/messages")
     suspend fun sendMessage(@Body request: SendMessageRequest): ChatMessage
 }
