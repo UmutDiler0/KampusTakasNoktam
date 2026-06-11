@@ -2,6 +2,7 @@ package com.takasr.kampstakasnoktam.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.takasr.kampstakasnoktam.data.AuthRepository
 import com.takasr.kampstakasnoktam.data.network.ApiService
 import com.takasr.kampstakasnoktam.data.network.UserResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ sealed class ProfileUiState {
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -37,6 +39,13 @@ class ProfileViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = ProfileUiState.Error(e.message ?: "Profil bilgileri alınamadı")
             }
+        }
+    }
+
+    fun logout(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.logout()
+            onComplete()
         }
     }
 }

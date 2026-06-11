@@ -33,6 +33,7 @@ fun ProfileScreen(
     onTabSelected: (BottomNavTab) -> Unit,
     onChatClick: () -> Unit,
     onBasketClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     settingsViewModel: SettingsViewModel,
     profileViewModel: ProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
@@ -48,7 +49,8 @@ fun ProfileScreen(
     ) {
         ProfileContent(
             settingsViewModel = settingsViewModel,
-            profileViewModel = profileViewModel
+            profileViewModel = profileViewModel,
+            onLogoutClick = onLogoutClick
         )
     }
 }
@@ -57,6 +59,7 @@ fun ProfileScreen(
 fun ProfileContent(
     settingsViewModel: SettingsViewModel,
     profileViewModel: ProfileViewModel,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
@@ -250,7 +253,7 @@ fun ProfileContent(
                             title = stringResource(id = R.string.menu_sign_out),
                             titleColor = MaterialTheme.colorScheme.error,
                             iconColor = MaterialTheme.colorScheme.error,
-                            onClick = { }
+                            onClick = { profileViewModel.logout(onLogoutClick) }
                         )
                     }
                 }

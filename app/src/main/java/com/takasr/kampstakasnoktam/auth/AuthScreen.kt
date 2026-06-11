@@ -56,9 +56,15 @@ fun AuthRoute(
     var mode by rememberSaveable { mutableStateOf(AuthMode.Login) }
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.clearStoredToken()
+    }
+
     LaunchedEffect(uiState) {
-        if (uiState is AuthUiState.Success) {
-            onLoginSuccess()
+        when (uiState) {
+            is AuthUiState.Success -> onLoginSuccess()
+            is AuthUiState.Registered -> mode = AuthMode.Login
+            else -> {}
         }
     }
 

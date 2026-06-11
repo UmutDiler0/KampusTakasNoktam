@@ -148,6 +148,11 @@ fun AppNavHost(
                 onTabSelected = navigateToMainTab,
                 onChatClick = { navController.navigate(AppDestination.Chat.route) },
                 onBasketClick = { navController.navigate(AppDestination.Basket.route) },
+                onLogoutClick = {
+                    navController.navigate(AppDestination.Auth.route) {
+                        popUpTo(AppDestination.Home.route) { inclusive = true }
+                    }
+                },
                 settingsViewModel = settingsViewModel
             )
         }

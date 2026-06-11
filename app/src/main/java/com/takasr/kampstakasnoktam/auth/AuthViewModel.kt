@@ -14,6 +14,7 @@ sealed class AuthUiState {
     object Idle : AuthUiState()
     object Loading : AuthUiState()
     object Success : AuthUiState()
+    object Registered : AuthUiState()
     data class Error(val message: String) : AuthUiState()
 }
 
@@ -52,12 +53,18 @@ class AuthViewModel @Inject constructor(
         _uiState.value = AuthUiState.Loading
         viewModelScope.launch {
             authRepository.register(fullName, email, pass).onSuccess {
-                // Kayıt sonrası otomatik giriş yapabiliriz veya login ekranına atabiliriz.
-                // Burada basitlik için login'e yönlendireceğiz.
-                _uiState.value = AuthUiState.Success
+                // Önceki girişte kayıtlı token varsa temizleyelim.
+                authRepository.logout()
+                _uiState.value = AuthUiState.Registered
             }.onFailure { error ->
                 _uiState.value = AuthUiState.Error(error.message ?: "Kayıt başarısız")
             }
+        }
+    }
+
+    fun clearStoredToken() {
+        viewModelScope.launch {
+            authRepository.logout()
         }
     }
 
