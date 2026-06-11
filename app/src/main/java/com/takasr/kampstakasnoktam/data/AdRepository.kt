@@ -18,51 +18,43 @@ class AdRepository @Inject constructor(
         minPrice: Double? = null,
         maxPrice: Double? = null,
         isSwap: Boolean? = null
-    ): Result<List<Advertisement>> {
-        return try {
-            val response = apiService.getAds(
-                category = category,
-                condition = condition,
-                minPrice = minPrice,
-                maxPrice = maxPrice,
-                isSwap = isSwap
-            )
-            Result.success(response.map { it.toAdvertisement() })
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    ): Result<List<Advertisement>> = runCatching {
+        apiService.getAds(category, condition, minPrice, maxPrice, isSwap)
+            .map { it.toAdvertisement() }
     }
 
-    suspend fun createAd(request: AdCreateRequest): Result<Advertisement> {
-        return try {
-            Result.success(apiService.createAd(request).toAdvertisement())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun discoverAds(
+        category: String? = null,
+        condition: String? = null,
+        minPrice: Double? = null,
+        maxPrice: Double? = null,
+        isSwap: Boolean? = null
+    ): Result<List<Advertisement>> = runCatching {
+        apiService.discoverAds(category, condition, minPrice, maxPrice, isSwap)
+            .map { it.toAdvertisement() }
     }
 
-    suspend fun updateAd(adId: Int, updates: Map<String, Any>): Result<Advertisement> {
-        return try {
-            Result.success(apiService.updateAd(adId, updates).toAdvertisement())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun getMyAds(): Result<List<Advertisement>> = runCatching {
+        apiService.getMyAds().map { it.toAdvertisement() }
     }
 
-    suspend fun uploadImages(adId: Int, files: List<MultipartBody.Part>): Result<Advertisement> {
-        return try {
-            Result.success(apiService.uploadAdImages(adId, files).toAdvertisement())
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun getAd(adId: Int): Result<Advertisement> = runCatching {
+        apiService.getAd(adId).toAdvertisement()
     }
 
-    suspend fun deleteAd(adId: Int): Result<Unit> {
-        return try {
-            apiService.deleteAd(adId)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend fun createAd(request: AdCreateRequest): Result<Advertisement> = runCatching {
+        apiService.createAd(request).toAdvertisement()
+    }
+
+    suspend fun updateAd(adId: Int, updates: Map<String, Any>): Result<Advertisement> = runCatching {
+        apiService.updateAd(adId, updates).toAdvertisement()
+    }
+
+    suspend fun uploadImages(adId: Int, files: List<MultipartBody.Part>): Result<Advertisement> = runCatching {
+        apiService.uploadAdImages(adId, files).toAdvertisement()
+    }
+
+    suspend fun deleteAd(adId: Int): Result<Unit> = runCatching {
+        apiService.deleteAd(adId)
     }
 }

@@ -26,10 +26,6 @@ class ChatViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
-    init {
-        refreshConversations()
-    }
-
     fun refreshConversations() {
         _uiState.value = ChatUiState.Loading
         viewModelScope.launch {

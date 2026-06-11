@@ -1,6 +1,8 @@
 package com.takasr.kampstakasnoktam.ui.home
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -37,6 +39,13 @@ import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -58,7 +67,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -109,6 +124,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showFilterSheet by rememberSaveable { mutableStateOf(false) }
 
     MainTabScaffold(
         selectedTab = BottomNavTab.Home,
@@ -123,17 +139,38 @@ fun HomeScreen(
             UiState.Loading -> LoadingContent()
 
             is UiState.Error -> EmptyTabContent(title = state.message)
-            is UiState.Success -> HomeContent(
-                uiData = state.data,
-                ads = state.data.filteredAds,
-                emptyStateText = stringResource(id = R.string.home_empty_ads),
-                showSearchAndFilter = true,
-                onQueryChanged = viewModel::onQueryChanged,
-                onItemClick = onItemClick,
-                onFavoriteToggle = viewModel::onFavoriteToggle,
-                onFilterClick = { },
-                onAddToBasketClick = viewModel::onAddToBasket
-            )
+            is UiState.Success -> {
+                HomeContent(
+                    uiData = state.data,
+                    ads = state.data.filteredAds,
+                    emptyStateText = stringResource(id = R.string.home_empty_ads),
+                    showSearchAndFilter = true,
+                    onQueryChanged = viewModel::onQueryChanged,
+                    onItemClick = onItemClick,
+                    onFavoriteToggle = viewModel::onFavoriteToggle,
+                    onFilterClick = { showFilterSheet = true },
+                    onAddToBasketClick = viewModel::onAddToBasket
+                )
+
+                if (showFilterSheet) {
+                    FilterBottomSheet(
+                        initialCategory = state.data.filterCategory,
+                        initialCondition = state.data.filterCondition,
+                        initialMinPrice = state.data.filterMinPrice,
+                        initialMaxPrice = state.data.filterMaxPrice,
+                        initialIsSwap = state.data.filterIsSwap,
+                        onDismiss = { showFilterSheet = false },
+                        onApply = { cat, cond, minP, maxP, swap ->
+                            viewModel.applyFilters(cat, cond, minP, maxP, swap)
+                            showFilterSheet = false
+                        },
+                        onClear = {
+                            viewModel.clearFilters()
+                            showFilterSheet = false
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -175,27 +212,7 @@ fun FavoritesScreen(
             )
         }
     }
-}
-@Composable
-fun MyAdsScreen(
-    onTabSelected: (BottomNavTab) -> Unit,
-    onChatClick: () -> Unit,
-    onBasketClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    MainTabScaffold(
-        selectedTab = BottomNavTab.MyAds,
-        titleRes = R.string.nav_my_ads,
-        onTabSelected = onTabSelected,
-        onChatClick = onChatClick,
-        onBasketClick = onBasketClick,
-        modifier = modifier
-    ) {
-        EmptyTabContent(title = stringResource(id = R.string.nav_my_ads))
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
+}@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTabScaffold(
     selectedTab: BottomNavTab,
@@ -205,6 +222,7 @@ fun MainTabScaffold(
     onBasketClick: () -> Unit,
     showTopBar: Boolean = true,
     modifier: Modifier = Modifier,
+    fab: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val basketViewModel: BasketViewModel = hiltViewModel()
@@ -255,7 +273,8 @@ fun MainTabScaffold(
                 selectedTab = selectedTab,
                 onTabSelected = onTabSelected
             )
-        }
+        },
+        floatingActionButton = { fab?.invoke() }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -394,6 +413,159 @@ private fun AddItemFab(onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterBottomSheet(
+    initialCategory: String,
+    initialCondition: String,
+    initialMinPrice: String,
+    initialMaxPrice: String,
+    initialIsSwap: Boolean?,
+    onDismiss: () -> Unit,
+    onApply: (String, String, String, String, Boolean?) -> Unit,
+    onClear: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    var category by remember { mutableStateOf(initialCategory) }
+    var condition by remember { mutableStateOf(initialCondition) }
+    var minPrice by remember { mutableStateOf(initialMinPrice) }
+    var maxPrice by remember { mutableStateOf(initialMaxPrice) }
+    var isSwap by remember { mutableStateOf(initialIsSwap) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        contentWindowInsets = { WindowInsets.navigationBars }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Filtrele",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+            )
+            HorizontalDivider()
+
+            // Kategori
+            FilterLabel("Kategori")
+            OutlinedTextField(
+                value = category,
+                onValueChange = { category = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Örn: Elektronik, Kitap") },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            // Durum
+            FilterLabel("Durum")
+            OutlinedTextField(
+                value = condition,
+                onValueChange = { condition = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Örn: Sıfır, Az Kullanılmış") },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            // Fiyat Aralığı
+            FilterLabel("Fiyat Aralığı (TL)")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = minPrice,
+                    onValueChange = { minPrice = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Min") },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = maxPrice,
+                    onValueChange = { maxPrice = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Max") },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+
+            // Takas
+            FilterLabel("Takas")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = isSwap == null,
+                    onClick = { isSwap = null },
+                    label = { Text("Tümü") }
+                )
+                FilterChip(
+                    selected = isSwap == true,
+                    onClick = { isSwap = true },
+                    label = { Text("Takasa Açık") }
+                )
+                FilterChip(
+                    selected = isSwap == false,
+                    onClick = { isSwap = false },
+                    label = { Text("Sadece Satış") }
+                )
+            }
+
+            HorizontalDivider()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { onClear() }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Temizle")
+                }
+                Button(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            onApply(category, condition, minPrice, maxPrice, isSwap)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Uygula")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+}
+
 @Composable
 private fun HomeContent(
     uiData: HomeUiData,
@@ -435,14 +607,27 @@ private fun HomeContent(
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface
                     )
                 )
-                OutlinedIconButton(
-                    onClick = onFilterClick,
-                    modifier = Modifier.size(dimensionResource(R.dimen.spacing_xl) * 2)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Tune,
-                        contentDescription = stringResource(id = R.string.action_filter)
-                    )
+                if (uiData.isFilterActive) {
+                    FilledTonalIconButton(
+                        onClick = onFilterClick,
+                        modifier = Modifier.size(dimensionResource(R.dimen.spacing_xl) * 2)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = stringResource(id = R.string.action_filter),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                } else {
+                    OutlinedIconButton(
+                        onClick = onFilterClick,
+                        modifier = Modifier.size(dimensionResource(R.dimen.spacing_xl) * 2)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = stringResource(id = R.string.action_filter)
+                        )
+                    }
                 }
             }
         }

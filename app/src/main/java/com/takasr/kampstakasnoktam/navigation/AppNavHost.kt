@@ -5,6 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,7 +30,10 @@ import com.takasr.kampstakasnoktam.ui.home.HomeViewModel
 import com.takasr.kampstakasnoktam.ui.itemdetail.ItemDetailScreen
 import com.takasr.kampstakasnoktam.ui.itemdetail.ItemDetailViewModel
 import com.takasr.kampstakasnoktam.ui.home.HomeUiData
-import com.takasr.kampstakasnoktam.ui.home.MyAdsScreen
+import com.takasr.kampstakasnoktam.ui.chat.ChatViewModel
+import com.takasr.kampstakasnoktam.ui.editad.EditAdScreen
+import com.takasr.kampstakasnoktam.ui.myads.MyAdsScreen
+import com.takasr.kampstakasnoktam.ui.myads.MyAdsViewModel
 import com.takasr.kampstakasnoktam.ui.profile.ProfileScreen
 import com.takasr.kampstakasnoktam.ui.settings.SettingsViewModel
 import com.takasr.kampstakasnoktam.ui.seller.SellerScreen
@@ -130,6 +135,7 @@ fun AppNavHost(
             AddItemScreen(
                 onBackClick = { navController.popBackStack() },
                 onSuccess = {
+                    homeViewModel.refreshAds()
                     navController.navigate(AppDestination.Home.route) {
                         popUpTo(AppDestination.Home.route) { inclusive = true }
                     }
@@ -137,11 +143,20 @@ fun AppNavHost(
             )
         }
 
-        composable(route = AppDestination.MyAds.route) {
+        composable(route = AppDestination.MyAds.route) { entry ->
+            val myAdsViewModel: MyAdsViewModel = hiltViewModel()
+            LaunchedEffect(entry) {
+                entry.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    myAdsViewModel.loadMyAds()
+                }
+            }
             MyAdsScreen(
+                viewModel = myAdsViewModel,
                 onTabSelected = navigateToMainTab,
                 onChatClick = { navController.navigate(AppDestination.Chat.route) },
-                onBasketClick = { navController.navigate(AppDestination.Basket.route) }
+                onBasketClick = { navController.navigate(AppDestination.Basket.route) },
+                onAddClick = { navController.navigate(AppDestination.AddItem.route) },
+                onAdClick = { adId -> navController.navigate(AppDestination.EditAd.createRoute(adId)) }
             )
         }
 
@@ -160,8 +175,15 @@ fun AppNavHost(
             )
         }
 
-        composable(route = AppDestination.Chat.route) {
+        composable(route = AppDestination.Chat.route) { entry ->
+            val chatViewModel: ChatViewModel = hiltViewModel()
+            LaunchedEffect(entry) {
+                entry.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    chatViewModel.refreshConversations()
+                }
+            }
             ChatScreen(
+                viewModel = chatViewModel,
                 onBackClick = { navController.popBackStack() },
                 onConversationClick = { conversationId ->
                     navController.navigate(AppDestination.ChatDetail.createRoute(conversationId))
@@ -217,6 +239,18 @@ fun AppNavHost(
                 onSendMessageClick = { targetUserId ->
                     itemDetailViewModel.onSendMessageClick(targetUserId)
                 }
+            )
+        }
+
+        composable(
+            route = AppDestination.EditAd.route,
+            arguments = listOf(
+                navArgument("adId") { type = NavType.IntType }
+            )
+        ) {
+            EditAdScreen(
+                onBackClick = { navController.popBackStack() },
+                onSuccess = { navController.popBackStack() }
             )
         }
 

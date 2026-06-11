@@ -21,4 +21,8 @@ sealed class AppDestination(val route: String) {
     data object SellerProfile : AppDestination("seller-profile/{sellerId}") {
         fun createRoute(sellerId: String): String = "seller-profile/$sellerId"
     }
+
+    data object EditAd : AppDestination("edit-ad/{adId}") {
+        fun createRoute(adId: Int): String = "edit-ad/$adId"
+    }
 }

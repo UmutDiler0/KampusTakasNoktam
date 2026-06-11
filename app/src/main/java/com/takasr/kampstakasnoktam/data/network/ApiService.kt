@@ -27,6 +27,18 @@ interface ApiService {
         @Query("is_swap") isSwap: Boolean? = null
     ): List<AdvertisementResponse>
 
+    @GET("ads/discover")
+    suspend fun discoverAds(
+        @Query("category") category: String? = null,
+        @Query("condition") condition: String? = null,
+        @Query("min_price") minPrice: Double? = null,
+        @Query("max_price") maxPrice: Double? = null,
+        @Query("is_swap") isSwap: Boolean? = null
+    ): List<AdvertisementResponse>
+
+    @GET("ads/my-ads")
+    suspend fun getMyAds(): List<AdvertisementResponse>
+
     @POST("ads/")
     suspend fun createAd(@Body request: AdCreateRequest): AdvertisementResponse
 
@@ -37,13 +49,16 @@ interface ApiService {
         @Part files: List<MultipartBody.Part>
     ): AdvertisementResponse
 
-    @PUT("ads/{ad_id}/")
+    @GET("ads/{ad_id}")
+    suspend fun getAd(@Path("ad_id") adId: Int): AdvertisementResponse
+
+    @PUT("ads/{ad_id}")
     suspend fun updateAd(
         @Path("ad_id") adId: Int,
         @Body updates: Map<String, @JvmSuppressWildcards Any>
     ): AdvertisementResponse
 
-    @DELETE("ads/{ad_id}/")
+    @DELETE("ads/{ad_id}")
     suspend fun deleteAd(@Path("ad_id") adId: Int)
 
     @GET("users/me")
