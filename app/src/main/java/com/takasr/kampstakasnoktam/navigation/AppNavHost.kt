@@ -1,5 +1,6 @@
 package com.takasr.kampstakasnoktam.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -229,19 +230,15 @@ fun AppNavHost(
             val myAdsViewModel: MyAdsViewModel = hiltViewModel()
             val myAdsState by myAdsViewModel.uiState.collectAsState()
             
-            // Look for the item in Home feed
-            var selectedItem = (homeState as? UiState.Success<HomeUiData>)?.data?.ads?.find { it.id == itemId }
-                ?: (homeState as? UiState.Success<HomeUiData>)?.data?.filteredFavoriteAds?.find { it.id == itemId }
+            val uiState by itemDetailViewModel.uiState.collectAsState()
 
-            // If not found and it's my ad, look in MyAds
-            if (selectedItem == null && isMyAd) {
-                selectedItem = (myAdsState as? UiState.Success)?.data?.ads?.find { it.id == itemId }
+            LaunchedEffect(itemId, homeState, myAdsState) {
+                // Look for the item in local states first
+                val localItem = (homeState as? UiState.Success)?.data?.ads?.find { it.id == itemId }
+                    ?: (homeState as? UiState.Success)?.data?.filteredFavoriteAds?.find { it.id == itemId }
+                    ?: (myAdsState as? UiState.Success)?.data?.ads?.find { it.id == itemId }
 
-                LaunchedEffect(Unit) {
-                    if (myAdsState !is UiState.Success) {
-                        myAdsViewModel.loadMyAds()
-                    }
-                }
+                itemDetailViewModel.initAd(itemId, localItem)
             }
 
             LaunchedEffect(Unit) {
@@ -250,19 +247,42 @@ fun AppNavHost(
                 }
             }
 
-            ItemDetailScreen(
-                item = selectedItem,
-                isMyAd = isMyAd,
-                onBackClick = { navController.popBackStack() },
-                onAddToBasket = homeViewModel::onAddToBasket,
-                onEditClick = { navController.navigate(AppDestination.EditAd.createRoute(itemId)) },
-                onSellerClick = { sellerId ->
-                    navController.navigate(AppDestination.SellerProfile.createRoute(sellerId))
-                },
-                onSendMessageClick = { targetUserId ->
-                    itemDetailViewModel.onSendMessageClick(targetUserId)
+            when (val state = uiState) {
+                is UiState.Success -> {
+                    ItemDetailScreen(
+                        item = state.data,
+                        isMyAd = isMyAd,
+                        onBackClick = { navController.popBackStack() },
+                        onAddToBasket = { _ -> itemDetailViewModel.onAddToBasket(state.data) },
+                        onEditClick = { navController.navigate(AppDestination.EditAd.createRoute(itemId)) },
+                        onSellerClick = { sellerId -> navController.navigate(AppDestination.SellerProfile.createRoute(sellerId)) },
+                        onSendMessageClick = { targetUserId -> itemDetailViewModel.onSendMessageClick(targetUserId) }
+                    )
                 }
-            )
+                is UiState.Error -> {
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        androidx.compose.material3.Text(
+                            text = state.message,
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                else -> {
+                    // Idle or Loading state
+                    ItemDetailScreen(
+                        item = null,
+                        isMyAd = isMyAd,
+                        onBackClick = { navController.popBackStack() },
+                        onAddToBasket = {},
+                        onEditClick = {},
+                        onSellerClick = {},
+                        onSendMessageClick = {}
+                    )
+                }
+            }
         }
 
         composable(
