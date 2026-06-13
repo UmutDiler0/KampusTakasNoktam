@@ -108,7 +108,7 @@ fun MyAdsScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp)
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(top = 12.dp, bottom = 90.dp)
                     ) {
                         items(ads, key = { it.id }) { ad ->
                             MyAdCard(

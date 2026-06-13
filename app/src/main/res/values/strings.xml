@@ -60,6 +60,11 @@
     <string name="menu_help">Help and Support</string>
     <string name="menu_sign_out">Sign out</string>
 
+    <!-- Error Messages -->
+    <string name="error_unauthorized">Oturum süreniz doldu veya giriş yapmadınız. Lütfen tekrar giriş yapın.</string>
+    <string name="error_default">Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="action_edit">Düzenle</string>
+
     <string name="hint_search_items">Search items, books, electronics...</string>
     <string name="home_empty_ads">No ads found for this search.</string>
     <string name="home_empty_favorites">No favorite ads yet.</string>

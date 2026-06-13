@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -138,7 +139,14 @@ fun HomeScreen(
             UiState.Idle,
             UiState.Loading -> LoadingContent()
 
-            is UiState.Error -> EmptyTabContent(title = state.message)
+            is UiState.Error -> {
+                val errorMessage = if (state.message.contains("401", ignoreCase = true)) {
+                    stringResource(id = R.string.error_unauthorized)
+                } else {
+                    state.message
+                }
+                EmptyTabContent(title = errorMessage)
+            }
             is UiState.Success -> {
                 HomeContent(
                     uiData = state.data,
@@ -198,7 +206,14 @@ fun FavoritesScreen(
             UiState.Idle,
             UiState.Loading -> LoadingContent()
 
-            is UiState.Error -> EmptyTabContent(title = state.message)
+            is UiState.Error -> {
+                val errorMessage = if (state.message.contains("401", ignoreCase = true)) {
+                    stringResource(id = R.string.error_unauthorized)
+                } else {
+                    state.message
+                }
+                EmptyTabContent(title = errorMessage)
+            }
             is UiState.Success -> HomeContent(
                 uiData = state.data,
                 ads = state.data.filteredFavoriteAds,
@@ -637,6 +652,7 @@ private fun HomeContent(
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 90.dp),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md)),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_md)),
                 modifier = Modifier.fillMaxSize()
@@ -668,7 +684,7 @@ private fun HomeAdCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(0.78f)
+            .aspectRatio(0.70f)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(dimensionResource(R.dimen.ad_card_corner_radius)),
         colors = CardDefaults.cardColors(
@@ -741,10 +757,21 @@ private fun HomeAdCard(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FilledTonalIconButton(onClick = onAddToBasketClick) {
+                Button(
+                    onClick = onAddToBasketClick,
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.AddShoppingCart,
-                        contentDescription = stringResource(id = R.string.action_add_basket)
+                        contentDescription = stringResource(id = R.string.action_add_basket),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.action_add_basket),
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }

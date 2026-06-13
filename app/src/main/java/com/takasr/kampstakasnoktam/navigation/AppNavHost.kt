@@ -100,6 +100,7 @@ fun AppNavHost(
         composable(route = AppDestination.Auth.route) {
             AuthRoute(
                 onLoginSuccess = {
+                    homeViewModel.refreshAds()
                     navController.navigate(AppDestination.Home.route) {
                         popUpTo(AppDestination.Auth.route) { inclusive = true }
                     }
@@ -156,7 +157,7 @@ fun AppNavHost(
                 onChatClick = { navController.navigate(AppDestination.Chat.route) },
                 onBasketClick = { navController.navigate(AppDestination.Basket.route) },
                 onAddClick = { navController.navigate(AppDestination.AddItem.route) },
-                onAdClick = { adId -> navController.navigate(AppDestination.EditAd.createRoute(adId)) }
+                onAdClick = { adId -> navController.navigate(AppDestination.ItemDetail.createRoute(adId, isMyAd = true)) }
             )
         }
 
@@ -215,13 +216,33 @@ fun AppNavHost(
         composable(
             route = AppDestination.ItemDetail.route,
             arguments = listOf(
-                navArgument("itemId") { type = NavType.IntType }
+                navArgument("itemId") { type = NavType.IntType },
+                navArgument("isMyAd") { type = NavType.BoolType; defaultValue = false }
             )
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("itemId") ?: return@composable
+            val isMyAd = backStackEntry.arguments?.getBoolean("isMyAd") ?: false
             val itemDetailViewModel: ItemDetailViewModel = hiltViewModel()
             val homeState by homeViewModel.uiState.collectAsState()
-            val selectedItem = (homeState as? UiState.Success<HomeUiData>)?.data?.ads?.find { it.id == itemId }
+            
+            // Unconditionally get MyAdsViewModel to avoid conditional composable invocation
+            val myAdsViewModel: MyAdsViewModel = hiltViewModel()
+            val myAdsState by myAdsViewModel.uiState.collectAsState()
+            
+            // Look for the item in Home feed
+            var selectedItem = (homeState as? UiState.Success<HomeUiData>)?.data?.ads?.find { it.id == itemId }
+                ?: (homeState as? UiState.Success<HomeUiData>)?.data?.filteredFavoriteAds?.find { it.id == itemId }
+
+            // If not found and it's my ad, look in MyAds
+            if (selectedItem == null && isMyAd) {
+                selectedItem = (myAdsState as? UiState.Success)?.data?.ads?.find { it.id == itemId }
+
+                LaunchedEffect(Unit) {
+                    if (myAdsState !is UiState.Success) {
+                        myAdsViewModel.loadMyAds()
+                    }
+                }
+            }
 
             LaunchedEffect(Unit) {
                 itemDetailViewModel.navigateToChat.collect { conversationId ->
@@ -231,8 +252,10 @@ fun AppNavHost(
 
             ItemDetailScreen(
                 item = selectedItem,
+                isMyAd = isMyAd,
                 onBackClick = { navController.popBackStack() },
                 onAddToBasket = homeViewModel::onAddToBasket,
+                onEditClick = { navController.navigate(AppDestination.EditAd.createRoute(itemId)) },
                 onSellerClick = { sellerId ->
                     navController.navigate(AppDestination.SellerProfile.createRoute(sellerId))
                 },

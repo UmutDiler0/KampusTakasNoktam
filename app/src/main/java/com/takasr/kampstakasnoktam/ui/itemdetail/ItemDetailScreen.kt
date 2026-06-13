@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,8 +49,10 @@ data class ItemDetailData(
 @Composable
 fun ItemDetailScreen(
     item: Advertisement?,
+    isMyAd: Boolean = false,
     onBackClick: () -> Unit = {},
     onAddToBasket: (Int) -> Unit = {},
+    onEditClick: () -> Unit = {},
     onSellerClick: (sellerId: String) -> Unit = {},
     onSendMessageClick: (targetUserId: String) -> Unit = {},
     modifier: Modifier = Modifier
@@ -96,17 +99,28 @@ fun ItemDetailScreen(
             // ── Fiyat & Sepet ────────────────────────────────────────────────
             PriceAndBasketSection(
                 price = itemDetail.price,
-                onAddToBasket = { onAddToBasket(item.id) }
+                isMyAd = isMyAd,
+                onAddToBasket = { onAddToBasket(item.id) },
+                onEditClick = onEditClick
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
             // ── Satıcı ───────────────────────────────────────────────────────
-            SellerSection(
-                itemDetail = itemDetail,
-                onSellerClick = onSellerClick,
-                onSendMessageClick = onSendMessageClick
-            )
+            if (isMyAd) {
+                Text(
+                    text = "Bu ilan size ait",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                )
+            } else {
+                SellerSection(
+                    itemDetail = itemDetail,
+                    onSellerClick = onSellerClick,
+                    onSendMessageClick = onSendMessageClick
+                )
+            }
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -209,7 +223,9 @@ private fun ImagePagerSection(
 @Composable
 private fun PriceAndBasketSection(
     price: String,
+    isMyAd: Boolean,
     onAddToBasket: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -223,10 +239,18 @@ private fun PriceAndBasketSection(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
-        Button(onClick = onAddToBasket, shape = RoundedCornerShape(8.dp)) {
-            Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.action_add_basket))
+        if (isMyAd) {
+            Button(onClick = onEditClick, shape = RoundedCornerShape(8.dp)) {
+                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.action_edit))
+            }
+        } else {
+            Button(onClick = onAddToBasket, shape = RoundedCornerShape(8.dp)) {
+                Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.action_add_basket))
+            }
         }
     }
 }

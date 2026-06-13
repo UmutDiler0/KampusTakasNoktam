@@ -10,9 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.draw.clip
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.takasr.kampstakasnoktam.R
 
@@ -120,10 +129,18 @@ fun AuthRoute(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.1f)),
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .clickable(enabled = false) {}, // Intercept taps
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        Box(contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(64.dp))
+                            Image(
+                                painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp).clip(CircleShape)
+                            )
+                        }
                     }
                 }
             }
@@ -181,7 +198,8 @@ private fun LoginScreen(
             onValueChange = { email = it },
             label = { Text(text = stringResource(id = R.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(12.dp))
         AuthTextField(
@@ -190,7 +208,9 @@ private fun LoginScreen(
             label = { Text(text = stringResource(id = R.string.auth_password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onLoginClick(email, password) })
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
@@ -237,7 +257,8 @@ private fun RegisterScreen(
             onValueChange = { fullName = it },
             label = { Text(text = stringResource(id = R.string.auth_full_name)) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(12.dp))
         AuthTextField(
@@ -245,7 +266,8 @@ private fun RegisterScreen(
             onValueChange = { email = it },
             label = { Text(text = stringResource(id = R.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         Spacer(modifier = Modifier.height(12.dp))
         AuthTextField(
@@ -254,7 +276,9 @@ private fun RegisterScreen(
             label = { Text(text = stringResource(id = R.string.auth_password)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onRegisterClick(fullName, email, password) })
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
@@ -296,7 +320,9 @@ private fun ForgotPasswordScreen(
             onValueChange = { email = it },
             label = { Text(text = stringResource(id = R.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onResetClick() })
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
@@ -320,7 +346,9 @@ private fun AuthTextField(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
-    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     OutlinedTextField(
         value = value,
@@ -329,6 +357,8 @@ private fun AuthTextField(
         modifier = modifier,
         singleLine = singleLine,
         visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         shape = RoundedCornerShape(18.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
