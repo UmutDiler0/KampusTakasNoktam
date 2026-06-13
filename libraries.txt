@@ -1,0 +1,13 @@
+Kotlin
+Jetpack Compose
+Material Design 3 (androidx.compose.material3)
+Navigation Compose (androidx.navigation:navigation-compose)
+Hilt / Dagger (com.google.dagger:hilt-android)
+Room Database (androidx.room)
+Retrofit (com.squareup.retrofit2:retrofit)
+OkHttp & Logging Interceptor (com.squareup.okhttp3:okhttp)
+Gson (com.google.code.gson:gson)
+Coil (io.coil-kt:coil-compose)
+DataStore Preferences (androidx.datastore:datastore-preferences)
+Kotlin Coroutines (org.jetbrains.kotlinx:kotlinx-coroutines-core)
+Kotlin Flow (StateFlow/SharedFlow)
